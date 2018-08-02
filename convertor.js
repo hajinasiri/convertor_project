@@ -86,24 +86,6 @@ function parse(xml) {
 
 
 
-
-
-
-
-
-// const xml = "<data><title>Hello, world</title><description>A bit of example XML for testing</description><attr item='attr' href='http://google.com' />"
-
-//   +"<item><header>title</header><desc>desc</desc><xml:namespaced>test</xml:namespaced></item><item><header>another title</header>"
-//   +"<desc>desc 2</desc><xml:namespaced>text</xml:namespaced></item></data>";
-
-
-// var XML = new DOMParser().parseFromString(xml, "text/xml");
-
-// // and then use #parse to convert it to a JS object
-// var obj = parse(XML);
-// console.log(obj);
-
-
 function download(filename, text) {
   var element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -149,9 +131,6 @@ function readSingleFile(evt) {
     alert("Failed to load file");
   }
 }
-
-    // document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
-
 
 document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
