@@ -110,10 +110,11 @@ function findMainFile (files) {
   }
 }
 
-function readSingleFile(evt) {
+
+
+function readSingleFile(f) {
   //Retrieve the first (and only!) File from the FileList object
 
-  var f =findMainFile(evt.target.files);
   if (f) {
     var r = new FileReader();
     r.onload = function(e) {
@@ -139,17 +140,20 @@ function readSingleFile(evt) {
   }
 }
 
+function main(evt) {
+  var f =findMainFile(evt.target.files);
+  readSingleFile(f);
+}
+
+function main(evt) {
+  var f =findMainFile(evt.target.files);
+  readSingleFile(f);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-  document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+  document.getElementById('fileinput').addEventListener('change', main, false);
 });
 
 
 
-function readZip() {
-  var zip = new JSZip();
-  zip.loadAsync( this.files[0] /* = file blob */)
-     .then(function(zip) {
-         // process ZIP file content here
-         alert("OK")
-     }, function() {alert("Not a valid zip file")});
-};
+
