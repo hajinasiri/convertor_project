@@ -108,13 +108,12 @@ function findFile (files,key,str) {
         result = (files[i]);
       }
   }
-  console.log(result);
   return result;
 }
 
 
 
-function readSingleFile(f) {
+function readSingleFile(f,cb) {
   //Retrieve the first (and only!) File from the FileList object
 
   if (f) {
@@ -132,19 +131,24 @@ function readSingleFile(f) {
       const text =e.target.result;
       const xml = new DOMParser().parseFromString(text, "text/xml");
       const XML = parse(xml);
-
+      cb(XML);
     };
     r.readAsText(f);
 
   } else {
     alert("Failed to load file");
   }
+
+
 }
 
 
 function main(evt) {
-  var f =findFile(evt.target.files,'name','.scrivx');
-  readSingleFile(f);
+  const f =findFile(evt.target.files,'name','.scrivx');
+  const data = readSingleFile(f,function(XML){
+    console.log(XML.Binder);
+  });
+
 }
 
 document.addEventListener('DOMContentLoaded', function () {
