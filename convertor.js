@@ -16,14 +16,12 @@
 
 
 
-
-
 function flatten(object) {
   var check = _.isPlainObject(object) && _.size(object) === 1;
   return check ? flatten(_.values(object)[0]) : object;
 }
 
-
+//to parse xml to an object
 function parse(xml) {
   var data = {};
 
@@ -84,8 +82,7 @@ function parse(xml) {
   return flatten(data);
 }
 
-
-
+//to download a file to client's computer
 function download(filename, text) {
   var element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -102,11 +99,21 @@ function download(filename, text) {
 
 
 
+
+//to find the .scrivx file and return the corresponding array element
+function findMainFile (files) {
+  for (i = 0; i < files.length; i++ ){
+    if (files[i].name.indexOf('.scrivx') > -1){
+      return(files[i]);
+    }
+
+  }
+}
+
 function readSingleFile(evt) {
   //Retrieve the first (and only!) File from the FileList object
-  var f = evt.target.files[0];
-  console.log(f);
 
+  var f =findMainFile(evt.target.files);
   if (f) {
     var r = new FileReader();
     r.onload = function(e) {
@@ -123,7 +130,7 @@ function readSingleFile(evt) {
       const xml = new DOMParser().parseFromString(text, "text/xml");
       const XML = parse(xml);
       console.log(XML);
-      download('file', text);
+      // download('file', text);
     };
     r.readAsText(f);
 
@@ -137,3 +144,12 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+
+function readZip() {
+  var zip = new JSZip();
+  zip.loadAsync( this.files[0] /* = file blob */)
+     .then(function(zip) {
+         // process ZIP file content here
+         alert("OK")
+     }, function() {alert("Not a valid zip file")});
+};
