@@ -101,13 +101,15 @@ function download(filename, text) {
 
 
 //to find the .scrivx file and return the corresponding array element
-function findMainFile (files) {
+function findFile (files,key,str) {
+  var result='';
   for (i = 0; i < files.length; i++ ){
-    if (files[i].name.indexOf('.scrivx') > -1){
-      return(files[i]);
-    }
-
+      if (files[i][key].indexOf(str) > -1){
+        result = (files[i]);
+      }
   }
+  console.log(result);
+  return result;
 }
 
 
@@ -130,8 +132,7 @@ function readSingleFile(f) {
       const text =e.target.result;
       const xml = new DOMParser().parseFromString(text, "text/xml");
       const XML = parse(xml);
-      console.log(XML);
-      // download('file', text);
+
     };
     r.readAsText(f);
 
@@ -140,13 +141,9 @@ function readSingleFile(f) {
   }
 }
 
-function main(evt) {
-  var f =findMainFile(evt.target.files);
-  readSingleFile(f);
-}
 
 function main(evt) {
-  var f =findMainFile(evt.target.files);
+  var f =findFile(evt.target.files,'name','.scrivx');
   readSingleFile(f);
 }
 
