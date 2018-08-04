@@ -13,6 +13,10 @@
 //   document.body.removeChild(element);
 // }
 
+// function myAsyncFunction(path) {
+//   return new Promise((resolve, reject) => {
+
+
 
 
 function readSingleFile(f,cb) {
@@ -20,6 +24,7 @@ function readSingleFile(f,cb) {
 
   if (f) {
     var r = new FileReader();
+    r.readAsText(f);
     r.onload = function(e) {
       var contents = e.target.result;
       alert( "Got the file.n"
@@ -30,12 +35,12 @@ function readSingleFile(f,cb) {
       );
     }
     r.onload = function(e) {
-      const text =e.target.result;
-      const xml = new DOMParser().parseFromString(text, "text/xml");
-      const XML = parse(xml);
-      cb(XML);
+      const text = e.target.result;
+      cb(text);
+
+
     };
-    r.readAsText(f);
+
   } else {
     alert("Failed to load file");
   }
@@ -45,14 +50,14 @@ function readSingleFile(f,cb) {
 
 function main(evt) {
   const files = evt.target.files;
-  const f =findFile(files,'name','.scrivx');
-  const data = readSingleFile(f,function(XML){
+  const f =findFile(files,'name','.scrivx','');
+  readSingleFile(f,function(text1){
+    const xml = new DOMParser().parseFromString(text1, "text/xml");
+    const XML = parse(xml);
     const UUID = XML.Binder[0].Children[0].UUID;
-    const textPath = findFile(files,'webkitRelativePath',UUID);
-    // console.log(textPath);
-    // console.log(files);
-    myAsyncFunction().then(val => {
-      console.log(val);
+    const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
+    readSingleFile(textPath,function(text2){
+      console.log(text2);
     })
   });
 

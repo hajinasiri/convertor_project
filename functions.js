@@ -1,9 +1,3 @@
-function myAsyncFunction(path) {
-  return new Promise((resolve, reject) => {
-    var temp = 'hahahah';
-  resolve(temp)
-  });
-}
 
 function flatten(object) {
   var check = _.isPlainObject(object) && _.size(object) === 1;
@@ -72,11 +66,11 @@ function parse(xml) {
 }
 
 
-function findFile (files,key,str) {
+function findFile (files,key,str1,str2) {
 //to finds the file by key and returns the corresponding array element from files
   var result='';
   for (i = 0; i < files.length; i++ ){
-      if (files[i][key].indexOf(str) > -1){
+      if (files[i][key].indexOf(str1) > -1 && files[i][key].indexOf(str2) > -1 ){
         result = (files[i]);
       }
   }
