@@ -1,4 +1,31 @@
 
+function readSingleFile(f,cb) {
+  //Retrieve the first (and only!) File from the FileList object
+
+  if (f) {
+    var r = new FileReader();
+    r.readAsText(f);
+    r.onload = function(e) {
+      var contents = e.target.result;
+      alert( "Got the file.n"
+            +"name: " + f.name + "n"
+            +"type: " + f.type + "n"
+            +"size: " + f.size + " bytesn"
+            + "starts with: " + contents.substr(1, contents.indexOf("n"))
+      );
+    }
+    r.onload = function(e) {
+      const text = e.target.result;
+      cb(text);
+
+
+    };
+
+  } else {
+    alert("Failed to load file");
+  }
+}
+
 function flatten(object) {
   var check = _.isPlainObject(object) && _.size(object) === 1;
   return check ? flatten(_.values(object)[0]) : object;
