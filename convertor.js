@@ -1,31 +1,31 @@
+function createExcel(files,XML){
+  const Binder = XML.Binder;
+  var excel = $JExcel.new();
+  excel.set({row:1,column:1,value:'Title'})
+  var titleRowIndex = 2;
+  var childSize = 0;
+  Binder.forEach(function(child,index1){
 
-// //to download a file to client's computer
-// function download(filename, text) {
-//   var element = document.createElement('a');
-//   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-//   element.setAttribute('download', filename);
+    excel.set({row:(titleRowIndex),column:1,value:child.Title});
+    // const childTitleRowIndex = 3;
+    // child.forEach(function(grandChild,index2){
+    //   excel.set({row:childTitleRowIndex,column:2,value:'Title'});
+    //   const UUID = XML.Binder[index1].Children[index2].UUID;
+    //   const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
+    //   readSingleFile(textPath,function(text2){
+    //     getText(text2);
+    //     excel.set({row:childTitleRowIndex+index2,column:3,value:'Title'});
+    //   });
+    // });
+    if(child.Children){
+      titleRowIndex += 1+child.Children.length;
+    }else{
+      titleRowIndex += 1;
+    }
 
-//   element.style.display = 'none';
-//   document.body.appendChild(element);
-
-//   element.click();
-
-//   document.body.removeChild(element);
-// }
-
-// function myAsyncFunction(path) {
-//   return new Promise((resolve, reject) => {
-
-
-function getText(text){
-  const begin = text.indexOf('fs20') + 'fs20'.length;
-  const end = text.indexOf('fs24 <') - 1;
-  const mainText = text.slice(begin, end);
-  console.log(text);
-  console.log(mainText);
+  });
+  excel.generate("SampleData.xlsx");
 }
-
-
 
 
 
@@ -35,11 +35,9 @@ function main(evt) {
   readSingleFile(f,function(text1){
     const xml = new DOMParser().parseFromString(text1, "text/xml");
     const XML = parse(xml);
-    const UUID = XML.Binder[0].Children[0].UUID;
-    const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
-    readSingleFile(textPath,function(text2){
-      getText(text2);
-    })
+    createExcel(files,XML);
+    console.log(XML);
+
   });
 
 }
