@@ -3,28 +3,37 @@ function createExcel(files,XML){
   var excel = $JExcel.new();
   excel.set({row:1,column:1,value:'Title'})
   var titleRowIndex = 2;
-  var childSize = 0;
-  Binder.forEach(function(child,index1){
+  Binder.forEach(function(child){
 
-    excel.set({row:(titleRowIndex),column:1,value:child.Title});
-    // const childTitleRowIndex = 3;
-    // child.forEach(function(grandChild,index2){
-    //   excel.set({row:childTitleRowIndex,column:2,value:'Title'});
-    //   const UUID = XML.Binder[index1].Children[index2].UUID;
-    //   const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
-    //   readSingleFile(textPath,function(text2){
-    //     getText(text2);
-    //     excel.set({row:childTitleRowIndex+index2,column:3,value:'Title'});
-    //   });
-    // });
-    if(child.Children){
+    excel.set({row:titleRowIndex,column:1,value:child.Title});
+
+
+    if(child.Children && Array.isArray(child.Children)){
+      grandChildRowIndex = titleRowIndex + 1;
+       child.Children.forEach(function(grandChild){
+        if(grandChild.UUID){
+          getText(files,excel,grandChild,grandChildRowIndex,3);
+          // excel.set({row:titleRowIndex,column:3,value:getText(files,grandChild,grandChildRowIndex)});
+        }
+        excel.set({row:grandChildRowIndex,column:2,value:grandChild.Title});
+        if(grandChild.Children){
+          grandChildRowIndex += 1+grandChild.Children.length;
+          titleRowIndex += 1+grandChild.Children.length;
+        }else{
+          grandChildRowIndex += 1;
+          titleRowIndex += 1;
+        }
+      // //   const UUID = XML.Binder[index1].Children[index2].UUID;
+      // //   const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
+
+      });
       titleRowIndex += 1+child.Children.length;
     }else{
       titleRowIndex += 1;
     }
 
   });
-  excel.generate("SampleData.xlsx");
+  setTimeout(function(){excel.generate("SampleData.xlsx"); }, 600);
 }
 
 

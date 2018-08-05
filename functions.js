@@ -104,8 +104,15 @@ function findFile (files,key,str1,str2) {
   return result;
 }
 
-function getText(text){
-  const begin = text.indexOf('fs20') + 'fs20'.length;
-  const end = text.indexOf('fs24 <') - 1;
-  const mainText = text.slice(begin, end);
+function getText(files,excel,childObject,index,column){
+  const UUID = childObject.UUID;
+  const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
+  readSingleFile(textPath,function(text){
+    const begin = text.indexOf('fs20') + 'fs20'.length;
+    const end = text.indexOf('fs24 <') - 1;
+    mainText=text.slice(begin, end);
+    excel.set({row:index,column:column,value:mainText});
+
+  });
+
 }
