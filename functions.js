@@ -103,3 +103,11 @@ function findFile (files,key,str1,str2) {
   }
   return result;
 }
+
+function getText(text){
+  const begin = text.indexOf('fs20') + 'fs20'.length;
+  const end = text.indexOf('fs24 <') - 1;
+  const mainText = text.slice(begin, end);
+  console.log(text);
+  console.log(mainText);
+}

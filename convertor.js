@@ -17,34 +17,15 @@
 //   return new Promise((resolve, reject) => {
 
 
-
-
-function readSingleFile(f,cb) {
-  //Retrieve the first (and only!) File from the FileList object
-
-  if (f) {
-    var r = new FileReader();
-    r.readAsText(f);
-    r.onload = function(e) {
-      var contents = e.target.result;
-      alert( "Got the file.n"
-            +"name: " + f.name + "n"
-            +"type: " + f.type + "n"
-            +"size: " + f.size + " bytesn"
-            + "starts with: " + contents.substr(1, contents.indexOf("n"))
-      );
-    }
-    r.onload = function(e) {
-      const text = e.target.result;
-      cb(text);
-
-
-    };
-
-  } else {
-    alert("Failed to load file");
-  }
+function getText(text){
+  const begin = text.indexOf('fs20') + 'fs20'.length;
+  const end = text.indexOf('fs24 <') - 1;
+  const mainText = text.slice(begin, end);
+  console.log(text);
+  console.log(mainText);
 }
+
+
 
 
 
@@ -57,7 +38,7 @@ function main(evt) {
     const UUID = XML.Binder[0].Children[0].UUID;
     const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
     readSingleFile(textPath,function(text2){
-      console.log(text2);
+      getText(text2);
     })
   });
 
