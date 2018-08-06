@@ -105,14 +105,15 @@ function findFile (files,key,str1,str2) {
 }
 
 function getText(files,excel,childObject,index,column){
-  const UUID = childObject.UUID;
-  const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
-  readSingleFile(textPath,function(text){
-    const begin = text.indexOf('fs20') + 'fs20'.length;
-    const end = text.indexOf('fs24 <') - 1;
-    mainText=text.slice(begin, end);
-    excel.set({row:index,column:column,value:mainText});
+  if(childObject.UUID){
+    const UUID = childObject.UUID;
+    const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
+    readSingleFile(textPath,function(text){
+      const begin = text.indexOf('fs20') + 'fs20'.length;
+      const end = text.indexOf('fs24 <') - 1;
+      mainText=text.slice(begin, end);
+      excel.set({row:index,column:column,value:mainText});
 
-  });
-
+    });
+  }
 }

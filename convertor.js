@@ -1,32 +1,41 @@
+function addElement(object,files,excel,index,column){
+  getText(files,excel,object,index,column+1);//if the grandChild has UUID this function will add the text to the excel file
+  excel.set({row:index,column:column,value:object.Title});
+  var rowAdditionNumber = 0;
+  if(object.Children && Array.isArray(object.Children)){
+    rowAdditionNumber = 1+object.Children.length;
+  }else{
+  rowAdditionNumber = 1;
+  }
+  return rowAdditionNumber;
+}
+
+
+
 function createExcel(files,XML){
   const Binder = XML.Binder;
   var excel = $JExcel.new();
   excel.set({row:1,column:1,value:'Title'})
   var titleRowIndex = 2;
   Binder.forEach(function(child){
-
     excel.set({row:titleRowIndex,column:1,value:child.Title});
-
-
-    if(child.Children && Array.isArray(child.Children)){
-      grandChildRowIndex = titleRowIndex + 1;
+    if(child.Children && Array.isArray(child.Children)){//checking if the child has children and children is an array
+      grandChildRowIndex = titleRowIndex + 1;//setting the starting row for the children
+      var addition = 0;
        child.Children.forEach(function(grandChild){
-        if(grandChild.UUID){
-          getText(files,excel,grandChild,grandChildRowIndex,3);
-          // excel.set({row:titleRowIndex,column:3,value:getText(files,grandChild,grandChildRowIndex)});
-        }
-        excel.set({row:grandChildRowIndex,column:2,value:grandChild.Title});
-        if(grandChild.Children){
-          grandChildRowIndex += 1+grandChild.Children.length;
-          titleRowIndex += 1+grandChild.Children.length;
-        }else{
-          grandChildRowIndex += 1;
-          titleRowIndex += 1;
-        }
-      // //   const UUID = XML.Binder[index1].Children[index2].UUID;
-      // //   const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
+        addition = addElement(grandChild,files,excel,grandChildRowIndex,2);
+        grandChildRowIndex += addition;
+        titleRowIndex += addition;
+        if(grandChild.Children && Array.isArray(grandChild.Children)){
+          // const forthGenerationRowIndex = grandChildRowIndex + 1;
+          // grandChild.Children.forEach(function(forthGeneration){
+          //   excel.set({row:forthGenerationRowIndex,column:3,value:forthGeneration.Title});
 
+          // })
+
+        }
       });
+
       titleRowIndex += 1+child.Children.length;
     }else{
       titleRowIndex += 1;
