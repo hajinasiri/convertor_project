@@ -13,39 +13,47 @@ function addElement(object,files,excel,index,column){
 
 
 function createExcel(files,XML){
-  const Binder = XML.Binder;
-  var excel = $JExcel.new();
-  excel.set({row:1,column:1,value:'Title'})
-  var titleRowIndex = 2;
-  Binder.forEach(function(child){
-    excel.set({row:titleRowIndex,column:1,value:child.Title});
-    if(child.Children && Array.isArray(child.Children)){//checking if the child has children and children is an array
-      grandChildRowIndex = titleRowIndex + 1;//setting the starting row for the children
-      var addition = 0;
-       child.Children.forEach(function(grandChild){
-        addition = addElement(grandChild,files,excel,grandChildRowIndex,2);
-        grandChildRowIndex += addition;
-        titleRowIndex += addition;
-        if(grandChild.Children && Array.isArray(grandChild.Children)){
-          // const forthGenerationRowIndex = grandChildRowIndex + 1;
-          // grandChild.Children.forEach(function(forthGeneration){
-          //   excel.set({row:forthGenerationRowIndex,column:3,value:forthGeneration.Title});
+  var counter =[0];
+  var finish = false;
+  var c =0;
+  var d = 0;
 
-          // })
+  var target = XML.Binder[0];
 
-        }
-      });
+  while  (finish === false && c<100 ) {
+    validation = true;
+    console.log(counter);
 
-      titleRowIndex += 1+child.Children.length;
-    }else{
-      titleRowIndex += 1;
+    for(i=0; i<counter.length; i++){
+      if(target.Children[counter[i]]){
+        target =target.Children[counter[i]];
+      }else{
+        validation = false;
+      }
     }
 
-  });
-  setTimeout(function(){excel.generate("SampleData.xlsx"); }, 600);
+
+    if(validation){
+      if(target.Children){
+        counter.push(0);
+      }else{
+        counter[counter.length-1] +=1
+      }
+      console.log(target.Title);
+    }else{
+      counter.splice(-1,1);
+      counter[counter.length-1] +=1
+    }
+    target = XML.Binder[0];
+    c += 1;
+
+    if(counter[0] == undefined){ // to stop the while loop when it has gone through all elements
+      finish = true;
+    }
+
+  }
+  console.log(c);
 }
-
-
 
 function main(evt) {
   const files = evt.target.files;

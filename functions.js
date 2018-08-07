@@ -105,7 +105,7 @@ function findFile (files,key,str1,str2) {
 }
 
 function getText(files,excel,childObject,index,column){
-  if(childObject.UUID){
+  if(childObject.UUID && (column !==2)){
     const UUID = childObject.UUID;
     const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
     readSingleFile(textPath,function(text){
