@@ -10,15 +10,12 @@ function addElement(object,files,excel,index,column){
   return rowAdditionNumber;
 }
 
-
-
-function createExcel(files,XML){
+function singleElement(element){
   var counter =[0];
   var finish = false;
   var c =0;
-  var d = 0;
 
-  var target = XML.Binder[0];
+  var target = element;
 
   while  (finish === false && c<100 ) {
     validation = true;
@@ -34,17 +31,18 @@ function createExcel(files,XML){
 
 
     if(validation){
+       console.log(target);
       if(target.Children){
         counter.push(0);
       }else{
         counter[counter.length-1] +=1
       }
-      console.log(target.Title);
+
     }else{
       counter.splice(-1,1);
       counter[counter.length-1] +=1
     }
-    target = XML.Binder[0];
+    target = element;
     c += 1;
 
     if(counter[0] == undefined){ // to stop the while loop when it has gone through all elements
@@ -54,6 +52,96 @@ function createExcel(files,XML){
   }
   console.log(c);
 }
+
+
+function createExcel(files,XML){
+  var Binder = XML.Binder;
+  Binder.forEach(function(element){
+    if(element.Children){
+      singleElement(element);
+    }
+
+  })
+
+}
+
+
+
+
+// function createExcel(files,XML){
+//   const Binder = XML.Binder;
+//   var excel = $JExcel.new();
+//   excel.set({row:1,column:1,value:'Title'})
+//   var childRowIndex = 2;
+//   var addition1 = 0;
+//   Binder.forEach(function(child){
+//     addition1 = addElement(child,files,excel,childRowIndex,1);
+//     childRowIndex += addition1;
+//     if(child.Children && Array.isArray(child.Children)){//checking if the child has children and children is an array
+//       grandChildRowIndex = childRowIndex  + 1;//setting the starting row for the children
+//       var addition2 = 0;
+//        child.Children.forEach(function(grandChild){
+//         addition2 = addElement(grandChild,files,excel,grandChildRowIndex,2);
+//         grandChildRowIndex += addition2;
+//         // childRowIndex  += addition2;
+//         if(grandChild.Children && Array.isArray(grandChild.Children)){
+
+//           var forthGenerationRowIndex = grandChildRowIndex + 1;
+//           var addition3 = 0;
+//           grandChild.Children.forEach(function(forthGeneration){
+//             // addition3 = addElement(forthGeneration,files,excel,forthGenerationRowIndex,3);
+//             forthGenerationRowIndex += addition3;
+//             // grandChildRowIndex += addition3;
+//             // childRowIndex  += addition3;
+
+//           })
+
+//         }
+//       });
+
+//       childRowIndex  += 1+child.Children.length;
+//     }else{
+//       childRowIndex += 1;
+//     }
+
+//   });
+//   setTimeout(function(){excel.generate("SampleData.xlsx"); }, 600);
+// }
+
+// function createExcel(files,XML){
+//   const Binder = XML.Binder;
+//   var excel = $JExcel.new();
+//   excel.set({row:1,column:1,value:'Title'})
+//   var childRowIndex = 2;
+//   Binder.forEach(function(child){
+//     excel.set({row:childRowIndex ,column:1,value:child.Title});
+//     if(child.Children && Array.isArray(child.Children)){//checking if the child has children and children is an array
+//       grandChildRowIndex = childRowIndex  + 1;//setting the starting row for the children
+//       var addition = 0;
+//        child.Children.forEach(function(grandChild){
+//         addition = addElement(grandChild,files,excel,grandChildRowIndex,2);
+//         grandChildRowIndex += addition;
+//         childRowIndex  += addition;
+//         if(grandChild.Children && Array.isArray(grandChild.Children)){
+//           // const forthGenerationRowIndex = grandChildRowIndex + 1;
+//           // grandChild.Children.forEach(function(forthGeneration){
+//           //   excel.set({row:forthGenerationRowIndex,column:3,value:forthGeneration.Title});
+
+//           // })
+
+//         }
+//       });
+
+//       childRowIndex  += 1+child.Children.length;
+//     }else{
+//       childRowIndex += 1;
+//     }
+
+//   });
+//   setTimeout(function(){excel.generate("SampleData.xlsx"); }, 600);
+// }
+
+
 
 function main(evt) {
   const files = evt.target.files;
