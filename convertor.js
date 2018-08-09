@@ -1,9 +1,8 @@
 function addElement(target,files,counter,row,excel,uno){
   // getText(files,excel,target,index,column+1);//if the grandChild has UUID this function will add the text to the excel file
   uno = uno.map(a => a.toLowerCase());
-  const reference = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b); //calculates outline number
-  excel.set()
-  excel.set({row:row,column:2,value:reference});
+  const outline = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b); //calculates outline number
+  excel.set({row:row,column:uno.indexOf('outlinenumber')+ 4,value:outline});
   excel.set({row:row,column:3,value:target.Title});
   var CustomMetaData = target.MetaData.CustomMetaData;
   if(!Array.isArray(CustomMetaData)){
@@ -42,9 +41,6 @@ function singleElement(element,index,excel,row,files,uno){
 
 
     if(validation){
-       console.log(target.Title);
-       console.log(counter);
-       console.log(row);
        addElement(target,files,counter,row,excel,uno);
        row += 1;
       if(target.Children){
@@ -74,7 +70,7 @@ function initialize(excel){
   const uno = ["id", "label", "outlineNumber", "outlineLevel", "parent", "classes", "unoFrom", "unoTo", "param1", "param2",
   "param3", "param4", "shortDescription", "longDescription", "hoverAction", "hoverFunction", "clickAction", "clickFunction",
   "onDoubleClick", "url", "urlText", "tooltip", "infoPane", "onURL", "offURL", "openURL", "closeURL", "onFunction", "offFunction",
-  "openFunction", "closeFunction", "ttStyle", "render", "symbol", "location", "xpos", "ypos", "xsize", "ysize", "xoffset", "yoffset"];
+  "openFunction", "closeFunction", "ttStyle", "render", "symbol", "location", "xpos","panzoom", "ypos", "xsize", "ysize", "xoffset", "yoffset"];
   uno.forEach(function(element,index){
     excel.set({row:1,column:4+index,value:element});
   });
@@ -89,7 +85,8 @@ function createExcel(files,XML){
   const uno = initialize(excel);
   var row = 2;
   Binder.forEach(function(element,index){
-    excel.set({row:row,column:3,value:element.Title});
+    addElement(element,files,[-1],row,excel,uno);
+    // excel.set({row:row,column:3,value:element.Title});
     console.log(row);
     row += 1;
     if(element.Children){
