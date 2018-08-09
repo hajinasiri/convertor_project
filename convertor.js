@@ -1,16 +1,11 @@
-function addElement(object,files,excel,index,column){
-  getText(files,excel,object,index,column+1);//if the grandChild has UUID this function will add the text to the excel file
-  excel.set({row:index,column:column,value:object.Title});
-  var rowAdditionNumber = 0;
-  if(object.Children && Array.isArray(object.Children)){
-    rowAdditionNumber = 1+object.Children.length;
-  }else{
-  rowAdditionNumber = 1;
-  }
-  return rowAdditionNumber;
+function addElement(object,files,counter,row,excel){
+  // getText(files,excel,object,index,column+1);//if the grandChild has UUID this function will add the text to the excel file
+  const id = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b);
+  excel.set({row:row,column:1,value:id});
+  excel.set({row:row,column:2,value:object.Title});
 }
 
-function singleElement(element,index,excel,row){
+function singleElement(element,index,excel,row,files){
   var counter =[0];
   var finish = false;
   var c =0;
@@ -32,7 +27,9 @@ function singleElement(element,index,excel,row){
 
     if(validation){
        console.log(target.Title);
+       console.log(counter);
        console.log(row);
+       addElement(target,files,counter,row,excel);
        row += 1;
       if(target.Children){
         counter.push(0);
@@ -57,64 +54,23 @@ function singleElement(element,index,excel,row){
 
 
 function createExcel(files,XML){
-  var Binder = XML.Binder;
+  var Binder = [XML.Binder[0]];
   var excel = $JExcel.new();
-  excel.set({row:1,column:1,value:'Title'});
+  excel.set({row:1,column:1,value:'id'},{row:1,column:2,value:'Title'});
   var row = 2;
   Binder.forEach(function(element,index){
-    console.log(element.Title);
+    excel.set({row:row,column:2,value:element.Title});
     console.log(row);
     row += 1;
     if(element.Children){
-      singleElement(element,index,excel,row);
+      row = singleElement(element,index,excel,row,files);
     }
 
   })
+  excel.generate('converted.xlsx');
 
 }
 
-
-
-
-// function createExcel(files,XML){
-//   const Binder = XML.Binder;
-//   var excel = $JExcel.new();
-//   excel.set({row:1,column:1,value:'Title'})
-//   var childRowIndex = 2;
-//   var addition1 = 0;
-//   Binder.forEach(function(child){
-//     addition1 = addElement(child,files,excel,childRowIndex,1);
-//     childRowIndex += addition1;
-//     if(child.Children && Array.isArray(child.Children)){//checking if the child has children and children is an array
-//       grandChildRowIndex = childRowIndex  + 1;//setting the starting row for the children
-//       var addition2 = 0;
-//        child.Children.forEach(function(grandChild){
-//         addition2 = addElement(grandChild,files,excel,grandChildRowIndex,2);
-//         grandChildRowIndex += addition2;
-//         // childRowIndex  += addition2;
-//         if(grandChild.Children && Array.isArray(grandChild.Children)){
-
-//           var forthGenerationRowIndex = grandChildRowIndex + 1;
-//           var addition3 = 0;
-//           grandChild.Children.forEach(function(forthGeneration){
-//             // addition3 = addElement(forthGeneration,files,excel,forthGenerationRowIndex,3);
-//             forthGenerationRowIndex += addition3;
-//             // grandChildRowIndex += addition3;
-//             // childRowIndex  += addition3;
-
-//           })
-
-//         }
-//       });
-
-//       childRowIndex  += 1+child.Children.length;
-//     }else{
-//       childRowIndex += 1;
-//     }
-
-//   });
-//   setTimeout(function(){excel.generate("SampleData.xlsx"); }, 600);
-// }
 
 
 
