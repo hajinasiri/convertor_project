@@ -1,11 +1,22 @@
-function addElement(object,files,counter,row,excel,uno){
-  // getText(files,excel,object,index,column+1);//if the grandChild has UUID this function will add the text to the excel file
-  const reference = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b);
+function addElement(target,files,counter,row,excel,uno){
+  // getText(files,excel,target,index,column+1);//if the grandChild has UUID this function will add the text to the excel file
+  uno = uno.map(a => a.toLowerCase());
+  const reference = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b); //calculates outline number
+  excel.set()
   excel.set({row:row,column:2,value:reference});
-  excel.set({row:row,column:3,value:object.Title});
-  uno.forEach(function(element,index){
-    if(object[element]){
-      console.log(element);
+  excel.set({row:row,column:3,value:target.Title});
+  var CustomMetaData = target.MetaData.CustomMetaData;
+  if(!Array.isArray(CustomMetaData)){
+    CustomMetaData = [CustomMetaData];
+  }
+  var FieldID = '';
+  var index = 0;
+
+  CustomMetaData.forEach(function(element){
+    if(element){
+      FieldID = element.FieldID;
+      index = uno.indexOf(FieldID);
+      excel.set({row:row,column:4+index,value:element.Value});
     }
   })
 }
@@ -58,10 +69,9 @@ function singleElement(element,index,excel,row,files,uno){
 }
 
 function initialize(excel){
-  excel.set({row:1,column:2,value:'Reference #'});
   excel.set({row:1,column:3,value:'Title'});
 
-  const uno = ["UNO Data List", "id", "label", "outlineNumber", "outlineLevel", "parent", "classes", "unoFrom", "unoTo", "param1", "param2",
+  const uno = ["id", "label", "outlineNumber", "outlineLevel", "parent", "classes", "unoFrom", "unoTo", "param1", "param2",
   "param3", "param4", "shortDescription", "longDescription", "hoverAction", "hoverFunction", "clickAction", "clickFunction",
   "onDoubleClick", "url", "urlText", "tooltip", "infoPane", "onURL", "offURL", "openURL", "closeURL", "onFunction", "offFunction",
   "openFunction", "closeFunction", "ttStyle", "render", "symbol", "location", "xpos", "ypos", "xsize", "ysize", "xoffset", "yoffset"];
@@ -87,7 +97,7 @@ function createExcel(files,XML){
     }
 
   })
-  // excel.generate('converted.xlsx');
+  excel.generate('converted.xlsx');
 
 }
 
