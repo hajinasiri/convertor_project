@@ -1,9 +1,11 @@
 function addElement(target,files,counter,row,excel,uno){
   // getText(files,excel,target,index,column+1);//if the grandChild has UUID this function will add the text to the excel file
-  uno = uno.map(a => a.toLowerCase());
+  uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
   const outline = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b); //calculates outline number
   excel.set({row:row,column:uno.indexOf('outlinenumber')+ 4,value:outline});
-  excel.set({row:row,column:3,value:target.Title});
+  excel.set({row:row,column:3,value:target.Title});//sets the title column in excel
+  excel.set({row:row,column:uno.indexOf('label')+ 4,value:target.Title});//sets the label column in excel
+  excel.set({row:row,column:uno.indexOf('id')+ 4,value:target.Title.replace(/ /g,'')});//sets the id column in excel
   var CustomMetaData = target.MetaData.CustomMetaData;
   if(!Array.isArray(CustomMetaData)){
     CustomMetaData = [CustomMetaData];
@@ -70,7 +72,7 @@ function initialize(excel){
   const uno = ["id", "label", "outlineNumber", "outlineLevel", "parent", "classes", "unoFrom", "unoTo", "param1", "param2",
   "param3", "param4", "shortDescription", "longDescription", "hoverAction", "hoverFunction", "clickAction", "clickFunction",
   "onDoubleClick", "url", "urlText", "tooltip", "infoPane", "onURL", "offURL", "openURL", "closeURL", "onFunction", "offFunction",
-  "openFunction", "closeFunction", "ttStyle", "render", "symbol", "location", "xpos","panzoom", "ypos", "xsize", "ysize", "xoffset", "yoffset"];
+  "openFunction", "closeFunction", "ttStyle", "render", "symbol", "location", "xpos","panzoom", "ypos", "xsize", "ysize", "xoffset", "yoffset","slideurl",'subtitle'];
   uno.forEach(function(element,index){
     excel.set({row:1,column:4+index,value:element});
   });
