@@ -1,11 +1,16 @@
-function addElement(object,files,counter,row,excel){
+function addElement(object,files,counter,row,excel,uno){
   // getText(files,excel,object,index,column+1);//if the grandChild has UUID this function will add the text to the excel file
-  const id = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b);
-  excel.set({row:row,column:1,value:id});
-  excel.set({row:row,column:2,value:object.Title});
+  const reference = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b);
+  excel.set({row:row,column:2,value:reference});
+  excel.set({row:row,column:3,value:object.Title});
+  uno.forEach(function(element,index){
+    if(object[element]){
+      console.log(element);
+    }
+  })
 }
 
-function singleElement(element,index,excel,row,files){
+function singleElement(element,index,excel,row,files,uno){
   var counter =[0];
   var finish = false;
   var c =0;
@@ -29,7 +34,7 @@ function singleElement(element,index,excel,row,files){
        console.log(target.Title);
        console.log(counter);
        console.log(row);
-       addElement(target,files,counter,row,excel);
+       addElement(target,files,counter,row,excel,uno);
        row += 1;
       if(target.Children){
         counter.push(0);
@@ -52,22 +57,37 @@ function singleElement(element,index,excel,row,files){
   return row;
 }
 
+function initialize(excel){
+  excel.set({row:1,column:2,value:'Reference #'});
+  excel.set({row:1,column:3,value:'Title'});
+
+  const uno = ["UNO Data List", "id", "label", "outlineNumber", "outlineLevel", "parent", "classes", "unoFrom", "unoTo", "param1", "param2",
+  "param3", "param4", "shortDescription", "longDescription", "hoverAction", "hoverFunction", "clickAction", "clickFunction",
+  "onDoubleClick", "url", "urlText", "tooltip", "infoPane", "onURL", "offURL", "openURL", "closeURL", "onFunction", "offFunction",
+  "openFunction", "closeFunction", "ttStyle", "render", "symbol", "location", "xpos", "ypos", "xsize", "ysize", "xoffset", "yoffset"];
+  uno.forEach(function(element,index){
+    excel.set({row:1,column:4+index,value:element});
+  });
+  return uno;
+
+}
 
 function createExcel(files,XML){
+
   var Binder = [XML.Binder[0]];
   var excel = $JExcel.new();
-  excel.set({row:1,column:1,value:'id'},{row:1,column:2,value:'Title'});
+  const uno = initialize(excel);
   var row = 2;
   Binder.forEach(function(element,index){
-    excel.set({row:row,column:2,value:element.Title});
+    excel.set({row:row,column:3,value:element.Title});
     console.log(row);
     row += 1;
     if(element.Children){
-      row = singleElement(element,index,excel,row,files);
+      row = singleElement(element,index,excel,row,files,uno);
     }
 
   })
-  excel.generate('converted.xlsx');
+  // excel.generate('converted.xlsx');
 
 }
 
