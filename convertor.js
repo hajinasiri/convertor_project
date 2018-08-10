@@ -1,7 +1,8 @@
 function addElement(target,files,counter,row,excel,uno,parent){
   // getText(files,excel,target,index,column+1);//if the grandChild has UUID this function will add the text to the excel file
   uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
-  const outline = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b); //calculates outline number
+  var outline = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b + '.'); //calculates outline number
+  if(outline.length === 1){outline += '.'};
   excel.set({row:row,column:uno.indexOf('outlinenumber')+ 4,value:outline});
   excel.set({row:row,column:3,value:target.Title});//sets the title column in excel
   excel.set({row:row,column:uno.indexOf('label')+ 4,value:target.Title});//sets the label column in excel
