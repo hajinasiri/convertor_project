@@ -1,8 +1,8 @@
 function addElement(target,files,counter,row,excel,uno,parent){
   // getText(files,excel,target,index,column+1);//if the grandChild has UUID this function will add the text to the excel file
   uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
-  var outline = counter.map(a => a+1).map(String).reduce((a, b) => a + '.'+ b + '.'); //calculates outline number
-  if(outline.length === 1){outline += '.'};
+  var outline = counter.map(a => a+1).map(String ).reduce((a, b) => a + '-' + b); //calculates outline number
+
   excel.set({row:row,column:uno.indexOf('outlinenumber')+ 4,value:outline});
   excel.set({row:row,column:3,value:target.Title});//sets the title column in excel
   excel.set({row:row,column:uno.indexOf('label')+ 4,value:target.Title});//sets the label column in excel
@@ -12,7 +12,11 @@ function addElement(target,files,counter,row,excel,uno,parent){
     excel.set({row:row,column:uno.indexOf('outlinelevel')+ 4,value:counter.length});//calculates and sets outlinelevel for things other than map
   }
   excel.set({row:row,column:uno.indexOf('id')+ 4,value:target.Title.replace(/ /g,'')});//sets the id column in excel
-  excel.set({row:row,column:uno.indexOf('parent')+ 4,value:parent});//sets the parent column in excel
+
+
+  excel.set({row:row,column:uno.indexOf('parent')+ 4,value:parent.Title});//sets the parent column in excel
+
+
   var CustomMetaData = target.MetaData.CustomMetaData;
   if(!Array.isArray(CustomMetaData)){
     CustomMetaData = [CustomMetaData];
@@ -29,6 +33,9 @@ function addElement(target,files,counter,row,excel,uno,parent){
   })
 }
 
+
+
+
 function singleElement(element,index,excel,row,files,uno){
   var counter =[0];
   var finish = false;
@@ -39,7 +46,7 @@ function singleElement(element,index,excel,row,files,uno){
   while  (finish === false && c<100 ) {
     validation = true;
     // console.log(counter);
-    var parent = 'Map';
+    var parent = element;
 
     for(i=0; i<counter.length; i++){
       if(target.Children[counter[i]]){
@@ -48,7 +55,7 @@ function singleElement(element,index,excel,row,files,uno){
         validation = false;
       }
       if(i === (counter.length - 2)){
-        parent = target.Title;
+        parent = target;
       }
     }
 
@@ -100,7 +107,7 @@ function createExcel(files,XML){
   const uno = initialize(excel);
   var row = 2;
   Binder.forEach(function(element,index){
-    addElement(element,files,[-1],row,excel,uno,'Binder');
+    addElement(element,files,[-1],row,excel,uno,{Title:'Binder'});
     // excel.set({row:row,column:3,value:element.Title});
     console.log(row);
     row += 1;
