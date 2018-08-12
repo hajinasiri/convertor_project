@@ -14,35 +14,47 @@ function addElement(XML,target,files,counter,row,excel,uno,parent){
 
   excel.set({row:row,column:uno.indexOf('id')+ 4,value:target.Title.replace(/ /g,'')});//sets the id column in excel
   excel.set({row:row,column:uno.indexOf('parent')+ 4,value:parent.Title});//sets the parent column in excel
+  propagate(XML,excel,row, target,parent,uno,counter);
 
-  if(target.Title !== "Map"){
-    propagate(XML,excel,row, target,parent,uno,counter);
-  }
+
 
 }
 
 
 function propagate(XML,excel,row, target,parent,uno,counter){
-  console.log(XML);
-  var CustomMetaData = target.MetaData.CustomMetaData; //get the CustomMetaData from the child
 
-  if(CustomMetaData == undefined){
-    CustomMetaData = [0];
-  }else if(!Array.isArray(CustomMetaData)){ // if the CustomMetaData is just one object put that object in an array to make
+  if(target.MetaData && target.MetaData.CustomMetaData){
+    var CustomMetaData = target.MetaData.CustomMetaData; //get the CustomMetaData from the child
+  }else{
+    var CustomMetaData = [];
+  }
+
+  if(!Array.isArray(CustomMetaData)){ // if the CustomMetaData is just one object put that object in an array to make
     //all CustomMetaDatas of type of array
     CustomMetaData = [CustomMetaData];
   }
 
-  var parentMetaData = parent.MetaData.CustomMetaData;
+  if(parent.MetaData && parent.MetaData.CustomMetaData){ //checks if the parent has CustomeMetaData. if yes, passes its value to parentMetaData
+    var parentMetaData = parent.MetaData.CustomMetaData;
+  }else{//if the parent does not have any MetaData sets parentMetaData as [] to make the code work
+    var parentMetaData = [];
+  }
 
   if(!Array.isArray(parentMetaData)){ // if the CustomMetaData is just one object put that object in an array to make
     //all CustomMetaDatas of type of array
     parentMetaData = [parentMetaData];
   }
 
-  var found = false;
 
-  uno.forEach(function(element,index){//goes through all the metaData and checks if the child has that value or the parent and puts that vlue in excel file
+
+   if(target.Title === 'Map'){
+    console.log(target);
+    console.log(CustomMetaData);
+  }
+
+
+  uno.forEach(function(element,index){//goes through all the MetaData and checks if the child has that value or the parent and puts that vlue in excel file
+     var found = false;
     CustomMetaData.forEach(function(childData){//Checks if the child has a value for it
       if( childData.FieldID === element){
         excel.set({row:row,column:4+index,value:childData.Value});
@@ -50,7 +62,7 @@ function propagate(XML,excel,row, target,parent,uno,counter){
       }
     });
 
-    if(!found){//if the child didn't have any value for the metadata
+    if(!found){//if the child didn't have any value for the MetaData
       parentMetaData.forEach(function(parentData){//checks if the parent has the data for it
 
         if( parentData.FieldID === element){
@@ -61,14 +73,18 @@ function propagate(XML,excel,row, target,parent,uno,counter){
             str += '.Children[' + String(counter[i]) + ']';
           }
 
-          if(typeof(target.MetaData.CustomMetaData) !== 'object'){//checks if CustomMetadata is not an array makes it an array
+
+          if(typeof(target.MetaData.CustomMetaData) !== 'object'){//checks if CustomMetaData is not an array makes it an array
             eval(str + '.MetaData = {}')//makes MetaData inside XML an object
             eval(str + '.MetaData.CustomMetaData=[]'); // makes the CustomMetaData key to MetaData and puts [] as its value
+          }else if(!Array.isArray(target.MetaData.CustomMetaData)){
+            var text = str + '.MetaData.CustomMetaData=['+JSON.stringify(target.MetaData.CustomMetaData)+']';
+            eval(text);
           }
 
           str += '.MetaData.CustomMetaData.push({FieldID:'+'"'+ element+'"' +',Value:'+'"'+parentData.Value+'"'+'})'; //builds the string to
           // add the value to the child from the parent
-          eval(str); //executes adding the metadata to the child
+          eval(str); //executes adding the MetaData to the child
         }
 
       });
@@ -128,7 +144,7 @@ function singleElement(XML,element,index,excel,row,files,uno){
   return row;
 }
 
-function initialize(excel){ //initializes the metadata columns inside excel file
+function initialize(excel){ //initializes the MetaData columns inside excel file
   excel.set({row:1,column:3,value:'Title'});
 
   const uno = ["id", "label", "outlineNumber", "outlineLevel", "parent", "classes", "unoFrom", "unoTo", "param1", "param2",
@@ -145,16 +161,16 @@ function initialize(excel){ //initializes the metadata columns inside excel file
 }
 
 function createExcel(files,XML){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
-  //uses propagate function to make child inherit metadata from their parent
+  //uses propagate function to make child inherit MetaData from their parent
 
   var Binder = [XML.Binder[0]];
   var excel = $JExcel.new();
   const uno = initialize(excel);
   var row = 2;
   Binder.forEach(function(element,index){
-    addElement(XML,element,files,[-1],row,excel,uno,{Title:'Binder'});
+    addElement(XML,element,files,[-1],row,excel,uno,XML.Binder);
     // excel.set({row:row,column:3,value:element.Title});
-    console.log(row);
+
     row += 1;
 
     if(element.Children){
