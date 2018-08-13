@@ -121,6 +121,7 @@ function remove(text,char, add){
   return text
 }
 
+
 function getText(files,excel,target,row,column){
   if(target.UUID){
     const UUID = target.UUID;
@@ -149,9 +150,19 @@ function getText(files,excel,target,row,column){
       }
       //To get rid of {\fldrslt  and }} around the links
       text = remove(text,'fldrslt',2);
-      text = remove(text, '}',0);
-      console.log(text);
       excel.set({row:row,column:column,value:text});
     });
+  }
+}
+
+
+
+function getShort(files,excel,target,row,column){
+  if(target.UUID){
+    const UUID = target.UUID;
+    const textPath = findFile(files,'webkitRelativePath',UUID,'synopsis.txt');
+    readSingleFile(textPath,function(rawText){
+    excel.set({row:row,column:column,value:text});
+    })
   }
 }
