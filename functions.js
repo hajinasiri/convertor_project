@@ -104,6 +104,23 @@ function findFile (files,key,str1,str2) {
   return result;
 }
 
+
+function remove(text,char, add){
+  var first,start,sub,last,portion;
+  first = text.indexOf(char);
+  while(first > -1){ //until there is no more hyperlink
+    //to get rid of the whole hyperlink
+    start = first - add; // -11 is to compensate for the "{\field{\*\" which comes before this string
+    portion = text.slice(start, start+add+char.length);
+    console.log(portion);
+    text = text.replace(portion,'');
+    console.log(portion);
+    console.log(text);
+    first = text.indexOf(char);
+  }
+  return text
+}
+
 function getText(files,excel,target,row,column){
   if(target.UUID){
     const UUID = target.UUID;
@@ -124,22 +141,16 @@ function getText(files,excel,target,row,column){
         //to get rid of the whole hyperlink
         first = text.indexOf("fldinst{HYPERLINK");
         first = first -11; // -11 is to compensate for the "{\field{\*\" which comes before this string
-         if(row == 9){
-          console.log(first);
-        }
+
         sub =  text.substr(first,text.length);
         last = sub.indexOf('}}');
         portion = text.slice(first, last+first+2);
         text = text.replace(portion,'');
       }
-
       //To get rid of {\fldrslt  and }} around the links
-      text = text.replace('{\fldrslt ', '');
-      text = text.replace('}}', '');
-      if(row === 9){
-        console.log(text);
-      }
-
+      text = remove(text,'fldrslt',2);
+      text = remove(text, '}',0);
+      console.log(text);
       excel.set({row:row,column:column,value:text});
     });
   }
