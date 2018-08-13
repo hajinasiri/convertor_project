@@ -22,7 +22,7 @@ function readSingleFile(f,cb) {
     };
 
   } else {
-    alert("Failed to load file");
+    // alert("Failed to load file");
   }
 }
 
@@ -108,11 +108,39 @@ function getText(files,excel,target,row,column){
   if(target.UUID){
     const UUID = target.UUID;
     const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
-    readSingleFile(textPath,function(text){
+    readSingleFile(textPath,function(rawText){
+      var text = rawText;
       const begin = text.indexOf('fs20') + 'fs20'.length;
       const end = text.indexOf('fs24 <') - 1;
-      mainText=text.slice(begin, end);
-      excel.set({row:row,column:column,value:mainText});
+      text = text.slice(begin, end);
+      text = text.replace('\cf0', '');
+      text = text.replace("'91", "'");
+      text = text.replace("'92", "'");
+      text = text.replace("'a0", ' ');
+
+      var first,sub,last,portion;
+      first = 1;
+      while(first > -1){ //until there is no more hyperlink
+        //to get rid of the whole hyperlink
+        first = text.indexOf("fldinst{HYPERLINK");
+        first = first -11; // -11 is to compensate for the "{\field{\*\" which comes before this string
+         if(row == 9){
+          console.log(first);
+        }
+        sub =  text.substr(first,text.length);
+        last = sub.indexOf('}}');
+        portion = text.slice(first, last+first+2);
+        text = text.replace(portion,'');
+      }
+
+      //To get rid of {\fldrslt  and }} around the links
+      text = text.replace('{\fldrslt ', '');
+      text = text.replace('}}', '');
+      if(row === 9){
+        console.log(text);
+      }
+
+      excel.set({row:row,column:column,value:text});
     });
   }
 }

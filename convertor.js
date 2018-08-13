@@ -1,7 +1,6 @@
 function addElement(XML,target,files,counter,row,excel,uno,parent){
-  uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
   getText(files,excel,target,row,uno.indexOf('longdescription') + 4)
-  var outline = counter.map(a => a+1).map(String ).reduce((a, b) => a + '-' + b); //calculates outline number
+  var outline = counter.map(a => a+1).map(String ).reduce((a, b) => a + '-' + b); //calculates outline number from counter variable
   excel.set({row:row,column:uno.indexOf('outlinenumber') + 4,value:outline});// sets the outline number in excel
   excel.set({row:row,column:3,value:target.Title});//sets the title column in excel
   excel.set({row:row,column:uno.indexOf('label') + 4,value:target.Title});//sets the label column in excel
@@ -138,7 +137,7 @@ function singleElement(XML,element,index,excel,row,files,uno){
 function initialize(excel){ //initializes the MetaData columns inside excel file
   excel.set({row:1,column:3,value:'Title'});
 
-  const uno = ["id", "label", "outlineNumber", "outlineLevel", "parent", "classes", "unoFrom", "unoTo", "param1", "param2",
+  var uno = ["id", "label", "outlineNumber", "outlineLevel", "parent", "classes", "unoFrom", "unoTo", "param1", "param2",
   "param3", "param4", "shortDescription", "longDescription", "hoverAction", "hoverFunction", "clickAction", "clickFunction",
   "onDoubleClick", "url", "urlText", "tooltip", "infoPane", "onURL", "offURL", "openURL", "closeURL", "onFunction", "offFunction",
   "openFunction", "closeFunction", "ttStyle", "render", "symbol", "location", "xpos","panzoom", "ypos", "xsize", "ysize", "xoffset",
@@ -147,6 +146,7 @@ function initialize(excel){ //initializes the MetaData columns inside excel file
   uno.forEach(function(element,index){
     excel.set({row:1,column:4+index,value:element});
   });
+  uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
   return uno;
 
 }
@@ -168,9 +168,9 @@ function createExcel(files,XML){//fetches data from XML, Uses addElement functio
 
   })
 
-  setTimeout(function(){
-    excel.generate('converted.xlsx'); //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
-  }, 300);
+  // setTimeout(function(){
+  //   excel.generate('converted.xlsx'); //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
+  // }, 300);
 
 }
 
