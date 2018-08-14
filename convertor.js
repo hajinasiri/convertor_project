@@ -46,7 +46,7 @@ function propagate(XML,excel,row, target,parent,uno,counter){
   }
 
   uno.forEach(function(element,index){//goes through all the MetaData and checks if the child has that value or the parent and puts that vlue in excel file
-     var found = false;
+    var found = false;
     CustomMetaData.forEach(function(childData){//Checks if the child has a value for it
       if( childData.FieldID === element){
         excel.set({row:row,column:4+index,value:childData.Value});
@@ -54,7 +54,7 @@ function propagate(XML,excel,row, target,parent,uno,counter){
       }
     });
 
-    if(!found){//if the child didn't have any value for the MetaData
+    if(!found && element !== 'url' && element !== 'urltext'){//if the child didn't have any value for the MetaData
       parentMetaData.forEach(function(parentData){//checks if the parent has the data for it
 
         if( parentData.FieldID === element){
@@ -82,7 +82,6 @@ function propagate(XML,excel,row, target,parent,uno,counter){
       });
     }
   })
-
 }
 
 
@@ -169,9 +168,9 @@ function createExcel(files,XML){//fetches data from XML, Uses addElement functio
 
   })
 
-  // setTimeout(function(){
-  //   excel.generate('converted.xlsx'); //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
-  // }, 300);
+  setTimeout(function(){
+    excel.generate('converted.xlsx'); //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
+  }, 300);
 
 }
 

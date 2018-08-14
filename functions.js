@@ -162,7 +162,7 @@ function getShort(files,excel,target,row,column){
     const UUID = target.UUID;
     const textPath = findFile(files,'webkitRelativePath',UUID,'synopsis.txt');
     readSingleFile(textPath,function(rawText){
-    excel.set({row:row,column:column,value:text});
+    excel.set({row:row,column:column,value:rawText});
     })
   }
 }
