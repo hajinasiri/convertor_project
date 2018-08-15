@@ -176,16 +176,13 @@ function initialize(excel,XML){ //initializes the MetaData columns inside excel 
   var hardCoded = ['id','label','outlineNumber','outlineLevel','parent', 'shortDescription', 'longDescription', 'label','classes'];
 
   var uno =[];
-  XML.CustomMetaDataSettings.forEach(function(element){//This function reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below
+  XML.CustomMetaDataSettings.forEach(function(element){//This loop reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below
     if(element.Title !== 'id'){
       uno.push(element.Title);
     }
   });
   uno = hardCoded.concat(uno);
-  console.log(uno);
-
-
-  uno.forEach(function(element,index){
+  uno.forEach(function(element,index){//This loop puts all the uno metaData Titles from uno array into the excel file
     excel.set({row:1,column:4+index,value:element});
   });
   uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
