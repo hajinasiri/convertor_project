@@ -1,18 +1,21 @@
-function addElement(XML,target,files,counter,row,excel,uno,parent){
+function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4);
-  getText(files,excel,target,row,uno.indexOf('longdescription') + 4)
+  getText(files,excel,target,row,uno.indexOf('longdescription') + 4);
   var outline = counter.map(a => a+1).map(String ).reduce((a, b) => a + '-' + b); //calculates outline number from counter variable
-  excel.set({row:row,column:uno.indexOf('outlinenumber') + 4,value:outline});// sets the outline number in excel
   excel.set({row:row,column:3,value:target.Title});//sets the title column in excel
+  excel.set({row:row,column:uno.indexOf('id') + 4,value:target.Title.replace(/ /g,'')});//sets the id column in excel
   excel.set({row:row,column:uno.indexOf('label') + 4,value:target.Title});//sets the label column in excel
-
+  excel.set({row:row,column:uno.indexOf('outlinenumber') + 4,value:outline});// sets the outline number in excel
+  var outlineLevel;
   if(counter[0] === -1){//sets the outlinelevel column
     excel.set({row:row,column:uno.indexOf('outlinelevel') + 4,value:0});//sets 0 for map
+    outlineLevel = 0;
   }else{
     excel.set({row:row,column:uno.indexOf('outlinelevel') + 4,value:counter.length});//calculates and sets outlinelevel for things other than map
+    outlineLevel = counter.length;
   }
 
-  excel.set({row:row,column:uno.indexOf('id') + 4,value:target.Title.replace(/ /g,'')});//sets the id column in excel
+
   excel.set({row:row,column:uno.indexOf('parent') + 4,value:parent.Title});//sets the parent column in excel
 
   //filling the classes column
@@ -32,14 +35,17 @@ function addElement(XML,target,files,counter,row,excel,uno,parent){
     })
   });
   excel.set({row:row,column:uno.indexOf('classes') + 4,value:classes}); //sets the value of classes column in excel as classes variable value
-  propagate(XML,excel,row, target,parent,uno,counter);
+  result[row - 2] = [{},{}];//adding a new element to result array. this new element is an array itself which contains two object. the first object will contain all the metaData without inheritance. The second one contains metaData with inheritance
+  result[row - 2 ][0] = {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes };
+  // result[row - 2 ][1] = result[row - 2][0];
+  propagate(XML,excel,row, target,parent,uno,counter,result);
 
 
 
 }
 
 
-function propagate(XML,excel,row, target,parent,uno,counter){
+function propagate(XML,excel,row, target,parent,uno,counter,result){
   if(target.MetaData && target.MetaData.CustomMetaData){
     var CustomMetaData = target.MetaData.CustomMetaData; //get the CustomMetaData from the child
   }else{
@@ -70,6 +76,7 @@ function propagate(XML,excel,row, target,parent,uno,counter){
     var found = false;
     CustomMetaData.forEach(function(childData){//Checks if the child has a value for it
       if( childData.FieldID === element){
+        result[row - 2][0][element] = childData.Value;//putting all the properties of the uno inside the result arrays insid the row-2 element which is an array itself and inside it's first elemant
         excel.set({row:row,column:4+index,value:childData.Value});
         if(element === 'unoto'){//To check if the child has a value for unoto
           unoto = childData.Value; //Then that value is stored in unoto variable
@@ -81,10 +88,11 @@ function propagate(XML,excel,row, target,parent,uno,counter){
         found = true;
       }
     });
-
     if(unoto && !unofrom && id){
       excel.set({row:row,column:4+uno.indexOf('unofrom'),value:id}); // if there is value for unoto, but no value for unofrom then the excel column value for unofrom is set as the value of id
+      result[row - 2][0].id = id;
     }
+    result[row - 2][1] = result[row - 2][0];//conpies all the non inherited metaData into the second element
 
   //making the object of inheritable properties
   const inheritable = {hoverAction:'',hoverFunction:'',clickAction:'',clickFunction:'',onDoubleClick:'',tooltip:'',infoPane:'',onFunction:'',
@@ -96,6 +104,7 @@ function propagate(XML,excel,row, target,parent,uno,counter){
 
         if( parentData.FieldID === element){
           excel.set({row:row,column:4+index,value:parentData.Value});
+          result[row - 2][1][element] = parentData.Value;
           var str = 'XML.Binder[0]';
 
           for(i=0; i<counter.length; i++){//builds the XML endpoint that should change. at the endpoint the value for the data will be added from the parent
@@ -122,7 +131,7 @@ function propagate(XML,excel,row, target,parent,uno,counter){
 }
 
 
-function singleElement(XML,element,index,excel,row,files,uno){
+function singleElement(XML,element,index,excel,row,files,uno,result){
   var counter =[0];//counter is the address to the current target that the code looks at. The code updates counter and then uses it to get the child
   //each element position in the array reperesent the number of generation of the target, and the value reperesents the number of the child in its generation.
   var finish = false; //finish variable changes to true when all the childs have been looked at and their data has been extracted. When finish is true the loop stops
@@ -148,7 +157,7 @@ function singleElement(XML,element,index,excel,row,files,uno){
 
 
     if(validation){//If the validation is true and there is a child in the address, addElement is used to add the data to the excel file
-      addElement(XML,target,files,counter,row,excel,uno,parent);
+      addElement(XML,target,files,counter,row,excel,uno,parent,result);
        row += 1; //goes to the next row in excel
       if(target.Children){ //if the target has children sets the counter to the first of them
         counter.push(0);
@@ -171,43 +180,26 @@ function singleElement(XML,element,index,excel,row,files,uno){
   return row;
 }
 
-function initialize(excel,XML){ //initializes the MetaData columns inside excel file
-  excel.set({row:1,column:3,value:'Title'});
-  var hardCoded = ['id','label','outlineNumber','outlineLevel','parent', 'shortDescription', 'longDescription', 'label','classes'];
-
-  var uno =[];
-  XML.CustomMetaDataSettings.forEach(function(element){//This loop reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below
-    if(element.Title !== 'id'){
-      uno.push(element.Title);
-    }
-  });
-  uno = hardCoded.concat(uno);
-  uno.forEach(function(element,index){//This loop puts all the uno metaData Titles from uno array into the excel file
-    excel.set({row:1,column:4+index,value:element});
-  });
-  uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
-  return uno;
-
-}
 
 function createExcel(files,XML){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
   //uses propagate function to make child inherit MetaData from their parent
-
+  var result =[[],[]];
   var Binder = [XML.Binder[0]]; //puts Map in Binder varialble
   var excel = $JExcel.new(); //initiates excel file
   const uno = initialize(excel,XML);//uses initialize function to add all uno elements to the excel file. in rturn gets uno array and puts it in uno variable
   var row = 2;
   Binder.forEach(function(element,index){ //this forEach is here to go through all the elements in Binder if needed. But currently there is only map in Binder variable
-    addElement(XML,element,files,[-1],row,excel,uno,{Title:'Binder'}); //This line adds all the data of Map to excel file
+    addElement(XML,element,files,[-1],row,excel,uno,{Title:'Binder'},result); //This line adds all the data of Map to excel file
     row += 1; //Then sets row number to the next row number
 
     if(element.Children){ //if there is children in Map, uses singleElement function to go through all the children inside map and gets the last row number from that function
-      row = singleElement(XML,element,index,excel,row,files,uno);
+      row = singleElement(XML,element,index,excel,row,files,uno,result);
     }
 
   })
 
   setTimeout(function(){
+    console.log(result);
     excel.generate('converted.xlsx'); //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
   }, 300);
 
@@ -224,7 +216,7 @@ function main(evt) { //This is the main function. Gets triggered when the button
     const xml = new DOMParser().parseFromString(text1, "text/xml"); //Parses the text into a DOM and puts it in xml variable
     const XML = parse(xml);//uses parse function to create an object from the DOM and puts it in XML variable
     createExcel(files,XML);//uses createExcel function to create the excel file from XML. files variable is passed to the function to read more files from it if needed
-    console.log(XML);
+    // console.log(XML);
   });
 
 }
