@@ -14,6 +14,23 @@ function addElement(XML,target,files,counter,row,excel,uno,parent){
 
   excel.set({row:row,column:uno.indexOf('id') + 4,value:target.Title.replace(/ /g,'')});//sets the id column in excel
   excel.set({row:row,column:uno.indexOf('parent') + 4,value:parent.Title});//sets the parent column in excel
+
+  //filling the classes column
+  var Keys = XML.Keywords;
+  var Keywords = target.Keywords;
+  if(Keywords && !Array.isArray(Keywords)){ //If the keywords is just one propertiy not an array, puts it in an array
+    Keywords = [Keywords];
+  }else if(Keywords === undefined){//If Keywords is undefined sets its value as an empty array
+    Keywords =[];
+  }
+  var classes = '';
+  Keywords.forEach(function(element){//Gets the Keywords of each uno, finds the value of that key in Keywords of the Binder and adds all the keys for the uno and puts the value in classes variable
+      if(key.ID === element){
+        classes += ' ' + key.Title;
+      }
+    })
+  });
+  excel.set({row:row,column:uno.indexOf('classes') + 4,value:classes});//fills the classes column in excel with classes value
   propagate(XML,excel,row, target,parent,uno,counter);
 
 
@@ -22,7 +39,6 @@ function addElement(XML,target,files,counter,row,excel,uno,parent){
 
 
 function propagate(XML,excel,row, target,parent,uno,counter){
-
   if(target.MetaData && target.MetaData.CustomMetaData){
     var CustomMetaData = target.MetaData.CustomMetaData; //get the CustomMetaData from the child
   }else{
