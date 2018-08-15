@@ -146,8 +146,8 @@ function getText(files,excel,target,row,column){
         text = text.replace(portion,'');
       }
       // console.log(text);
-      var index=text.indexOf("\\");
-      console.log(index);
+      // var index=text.indexOf("\\");
+      // console.log(index);
 
 
 

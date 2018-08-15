@@ -25,12 +25,13 @@ function addElement(XML,target,files,counter,row,excel,uno,parent){
   }
   var classes = '';
   Keywords.forEach(function(element){//Gets the Keywords of each uno, finds the value of that key in Keywords of the Binder and adds all the keys for the uno and puts the value in classes variable
+    Keys.forEach(function(key){
       if(key.ID === element){
         classes += ' ' + key.Title;
       }
     })
   });
-  excel.set({row:row,column:uno.indexOf('classes') + 4,value:classes});//fills the classes column in excel with classes value
+  excel.set({row:row,column:uno.indexOf('classes') + 4,value:classes}); //sets the value of classes column in excel as classes variable value
   propagate(XML,excel,row, target,parent,uno,counter);
 
 
@@ -170,14 +171,19 @@ function singleElement(XML,element,index,excel,row,files,uno){
   return row;
 }
 
-function initialize(excel){ //initializes the MetaData columns inside excel file
+function initialize(excel,XML){ //initializes the MetaData columns inside excel file
   excel.set({row:1,column:3,value:'Title'});
+  var hardCoded = ['id','label','outlineNumber','outlineLevel','parent', 'shortDescription', 'longDescription', 'label','classes'];
 
-  var uno = ["id", "label", "outlineNumber", "outlineLevel", "parent", "classes", "unoFrom", "unoTo", "param1", "param2",
-  "param3", "param4", "shortDescription", "longDescription", "hoverAction", "hoverFunction", "clickAction", "clickFunction",
-  "onDoubleClick", "url", "urlText", "tooltip", "infoPane", "onURL", "offURL", "openURL", "closeURL", "onFunction", "offFunction",
-  "openFunction", "closeFunction", "ttStyle", "render", "symbol", "location", "xpos","panzoom", "ypos", "xsize", "ysize", "xoffset",
-  "yoffset","slideurl",'subtitle'];
+  var uno =[];
+  XML.CustomMetaDataSettings.forEach(function(element){//This function reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below
+    if(element.Title !== 'id'){
+      uno.push(element.Title);
+    }
+  });
+  uno = hardCoded.concat(uno);
+  console.log(uno);
+
 
   uno.forEach(function(element,index){
     excel.set({row:1,column:4+index,value:element});
@@ -192,7 +198,7 @@ function createExcel(files,XML){//fetches data from XML, Uses addElement functio
 
   var Binder = [XML.Binder[0]]; //puts Map in Binder varialble
   var excel = $JExcel.new(); //initiates excel file
-  const uno = initialize(excel);//uses initialize function to add all uno elements to the excel file. in rturn gets uno array and puts it in uno variable
+  const uno = initialize(excel,XML);//uses initialize function to add all uno elements to the excel file. in rturn gets uno array and puts it in uno variable
   var row = 2;
   Binder.forEach(function(element,index){ //this forEach is here to go through all the elements in Binder if needed. But currently there is only map in Binder variable
     addElement(XML,element,files,[-1],row,excel,uno,{Title:'Binder'}); //This line adds all the data of Map to excel file
