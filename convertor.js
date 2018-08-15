@@ -45,16 +45,36 @@ function propagate(XML,excel,row, target,parent,uno,counter){
     parentMetaData = [parentMetaData];
   }
 
+  var unoto = ''; // to initiate the value for unoto. This variable is used to check if the child has unoto value and if yes store the value in it
+  var unofrom = '';//To initiate the value for unfrom. This variable is used to chek if the child has unofrom value and if yes store the value in it
+  var id = target.Title.replace(/ /g,''); //assumming that the target has no id, and making id from title. If the target has its own id, it will update id in the loop below
+
   uno.forEach(function(element,index){//goes through all the MetaData and checks if the child has that value or the parent and puts that vlue in excel file
     var found = false;
     CustomMetaData.forEach(function(childData){//Checks if the child has a value for it
       if( childData.FieldID === element){
         excel.set({row:row,column:4+index,value:childData.Value});
+        if(element === 'unoto'){//To check if the child has a value for unoto
+          unoto = childData.Value; //Then that value is stored in unoto variable
+        }else if(element === 'unofrom'){//To check if the child has a vlue for unofrom
+          unofrom = childData.Value; // Then that value is stored in unofrom variable
+        }else if(element === 'id'){ //Stroing the value for id in id varaiable
+          id = childData.Value;
+        }
         found = true;
       }
     });
 
-    if(!found && element !== 'url' && element !== 'urltext'){//if the child didn't have any value for the MetaData
+    if(unoto && !unofrom && id){
+      excel.set({row:row,column:4+uno.indexOf('unofrom'),value:id}); // if there is value for unoto, but no value for unofrom then the excel column value for unofrom is set as the value of id
+    }
+
+  //making the object of inheritable properties
+  const inheritable = {hoverAction:'',hoverFunction:'',clickAction:'',clickFunction:'',onDoubleClick:'',tooltip:'',infoPane:'',onFunction:'',
+        offFunction:'',openFunction:'',closeFunction:'',ttStyle:'',render:'',symbol:'',location:'',xpos:'',ypos:'',xscale:'',yscale:'',xoffset:'',
+        yoffset:''};
+
+    if(!found && element in inheritable){//if the child didn't have any value for the MetaData and the property is among the inheritables
       parentMetaData.forEach(function(parentData){//checks if the parent has the data for it
 
         if( parentData.FieldID === element){

@@ -112,10 +112,7 @@ function remove(text,char, add){
     //to get rid of the whole hyperlink
     start = first - add; // -11 is to compensate for the "{\field{\*\" which comes before this string
     portion = text.slice(start, start+add+char.length);
-    console.log(portion);
     text = text.replace(portion,'');
-    console.log(portion);
-    console.log(text);
     first = text.indexOf(char);
   }
   return text
@@ -148,11 +145,19 @@ function getText(files,excel,target,row,column){
         portion = text.slice(first, last+first+2);
         text = text.replace(portion,'');
       }
-      //To get rid of {\fldrslt  and }} around the links
-      text = remove(text,'fldrslt',2);
+      // console.log(text);
+      var index=text.indexOf("\\");
+      console.log(index);
+
+
+
+      // //To get rid of {\fldrslt  and }} around the links
+      // text = remove(text,'fldrslt',2);
+      // text = text.replace(/}}/g,"");
       excel.set({row:row,column:column,value:text});
     });
   }
+
 }
 
 
