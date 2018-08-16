@@ -150,8 +150,6 @@ function getText(files,excel,target,row,column,result){
       text = text.replace(/{/g,"");
       text = text.replace(/\\/g, '');
       text = text.replace(/ldrslt/g,'');
-
-      console.log(text);
       excel.set({row:row,column:column,value:text});
       result[0][row - 2].longdescription = text;
       result[1][row - 2].longdescription = text;
