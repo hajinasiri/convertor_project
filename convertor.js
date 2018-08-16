@@ -35,9 +35,8 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
     })
   });
   excel.set({row:row,column:uno.indexOf('classes') + 4,value:classes}); //sets the value of classes column in excel as classes variable value
-  result[row - 2] = [{},{}];//adding a new element to result array. this new element is an array itself which contains two object. the first object will contain all the metaData without inheritance. The second one contains metaData with inheritance
-  result[row - 2 ][0] = {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes };
-  // result[row - 2 ][1] = result[row - 2][0];
+  result[0][row - 2 ]= {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
+  result[1][row - 2 ] = {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
   propagate(XML,excel,row, target,parent,uno,counter,result);
 
 
@@ -76,7 +75,8 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
     var found = false;
     CustomMetaData.forEach(function(childData){//Checks if the child has a value for it
       if( childData.FieldID === element){
-        result[row - 2][0][element] = childData.Value;//putting all the properties of the uno inside the result arrays insid the row-2 element which is an array itself and inside it's first elemant
+        result[0][row - 2][element] = childData.Value;//putting all the properties of the uno inside the result arrays insid the row-2 element which is an array itself and inside it's first elemant
+        result[1][row - 2][element] = childData.Value;
         excel.set({row:row,column:4+index,value:childData.Value});
         if(element === 'unoto'){//To check if the child has a value for unoto
           unoto = childData.Value; //Then that value is stored in unoto variable
@@ -90,21 +90,21 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
     });
     if(unoto && !unofrom && id){
       excel.set({row:row,column:4+uno.indexOf('unofrom'),value:id}); // if there is value for unoto, but no value for unofrom then the excel column value for unofrom is set as the value of id
-      result[row - 2][0].id = id;
+      result[0][row - 2].id = id; //and then put that value for id in result array
+      result[1][row - 2].id = id;
     }
-    result[row - 2][1] = result[row - 2][0];//conpies all the non inherited metaData into the second element
 
-  //making the object of inheritable properties
-  const inheritable = {hoverAction:'',hoverFunction:'',clickAction:'',clickFunction:'',onDoubleClick:'',tooltip:'',infoPane:'',onFunction:'',
-        offFunction:'',openFunction:'',closeFunction:'',ttStyle:'',render:'',symbol:'',location:'',xpos:'',ypos:'',xscale:'',yscale:'',xoffset:'',
-        yoffset:''};
-
+    //making the object of inheritable properties
+    const inheritable = {'classes':'',hoveraction:'',hoverfunction:'',clickaction:'',clickfunction:'',ondoubleclick:'',tooltip:'',infopane:'',onfunction:'',
+      offfunction:'',openfunction:'',closefunction:'',ttstyle:'',render:'',symbol:'',location:'',xpos:'',ypos:'',xscale:'',yscale:'',xoffset:'',
+      yoffset:'',xsize:'', ysize: ''};
     if(!found && element in inheritable){//if the child didn't have any value for the MetaData and the property is among the inheritables
+
       parentMetaData.forEach(function(parentData){//checks if the parent has the data for it
 
         if( parentData.FieldID === element){
           excel.set({row:row,column:4+index,value:parentData.Value});
-          result[row - 2][1][element] = parentData.Value;
+          result[1][row - 2][element] = parentData.Value;
           var str = 'XML.Binder[0]';
 
           for(i=0; i<counter.length; i++){//builds the XML endpoint that should change. at the endpoint the value for the data will be added from the parent
@@ -126,6 +126,10 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
         }
 
       });
+
+
+
+
     }
   })
 }
