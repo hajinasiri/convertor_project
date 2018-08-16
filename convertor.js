@@ -1,6 +1,6 @@
 function addElement(XML,target,files,counter,row,excel,uno,parent,result){
-  getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4);
-  getText(files,excel,target,row,uno.indexOf('longdescription') + 4);
+  getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
+  getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
   var outline = counter.map(a => a+1).map(String ).reduce((a, b) => a + '-' + b); //calculates outline number from counter variable
   excel.set({row:row,column:3,value:target.Title});//sets the title column in excel
   excel.set({row:row,column:uno.indexOf('id') + 4,value:target.Title.replace(/ /g,'')});//sets the id column in excel

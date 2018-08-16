@@ -119,7 +119,7 @@ function remove(text,char, add){
 }
 
 
-function getText(files,excel,target,row,column){
+function getText(files,excel,target,row,column,result){
   if(target.UUID){
     const UUID = target.UUID;
     const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
@@ -155,6 +155,8 @@ function getText(files,excel,target,row,column){
       // text = remove(text,'fldrslt',2);
       // text = text.replace(/}}/g,"");
       excel.set({row:row,column:column,value:text});
+      result[0][row - 2].longdescription = text;
+      result[1][row - 2].longdescription = text;
     });
   }
 
@@ -162,12 +164,14 @@ function getText(files,excel,target,row,column){
 
 
 
-function getShort(files,excel,target,row,column){
+function getShort(files,excel,target,row,column,result){
   if(target.UUID){
     const UUID = target.UUID;
     const textPath = findFile(files,'webkitRelativePath',UUID,'synopsis.txt');
     readSingleFile(textPath,function(rawText){
     excel.set({row:row,column:column,value:rawText});
+    result[0][row - 2].shortdescription = rawText;
+    result[1][row - 2].shortdescription = rawText;
     })
   }
 }
