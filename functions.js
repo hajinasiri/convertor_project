@@ -145,15 +145,13 @@ function getText(files,excel,target,row,column,result){
         portion = text.slice(first, last+first+2);
         text = text.replace(portion,'');
       }
-      // console.log(text);
-      // var index=text.indexOf("\\");
-      // console.log(index);
 
+      text = text.replace(/}}/g,"");
+      text = text.replace(/{/g,"");
+      text = text.replace(/\\/g, '');
+      text = text.replace(/ldrslt/g,'');
 
-
-      // //To get rid of {\fldrslt  and }} around the links
-      // text = remove(text,'fldrslt',2);
-      // text = text.replace(/}}/g,"");
+      console.log(text);
       excel.set({row:row,column:column,value:text});
       result[0][row - 2].longdescription = text;
       result[1][row - 2].longdescription = text;
