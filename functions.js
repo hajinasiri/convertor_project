@@ -104,21 +104,6 @@ function findFile (files,key,str1,str2) {
   return result;
 }
 
-
-function remove(text,char, add){
-  var first,start,sub,last,portion;
-  first = text.indexOf(char);
-  while(first > -1){ //until there is no more hyperlink
-    //to get rid of the whole hyperlink
-    start = first - add; // -11 is to compensate for the "{\field{\*\" which comes before this string
-    portion = text.slice(start, start+add+char.length);
-    text = text.replace(portion,'');
-    first = text.indexOf(char);
-  }
-  return text
-}
-
-
 function getText(files,excel,target,row,column,result){
   if(target.UUID){
     const UUID = target.UUID;
