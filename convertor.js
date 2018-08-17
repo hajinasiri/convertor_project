@@ -185,7 +185,7 @@ function singleElement(XML,element,index,excel,row,files,uno,result){
 }
 
 
-function createExcel(files,XML){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
+function createExcel(files,XML,name){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
   //uses propagate function to make child inherit MetaData from their parent
   var result =[[],[]];
   var Binder = [XML.Binder[0]]; //puts Map in Binder varialble
@@ -204,8 +204,7 @@ function createExcel(files,XML){//fetches data from XML, Uses addElement functio
   })
 
   setTimeout(function(){
-    console.log(result);
-    excel.generate('converted.xlsx'); //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
+    excel.generate(name+'.xlsx'); //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
   }, 300);
 
 }
@@ -216,11 +215,12 @@ function createExcel(files,XML){//fetches data from XML, Uses addElement functio
 function main(evt) { //This is the main function. Gets triggered when the button on the browser is clicked.
   const files = evt.target.files; //puts the read files in variable files
   const f =findFile(files,'name','.scrivx',''); //finds the scrivx file and puts it in f
+  const name = f.name.replace('.scrivx','');
 
   readSingleFile(f,function(text1){//reads the scrivx file and as call back puts it in xml, parses it and creates the excel file from it
     const xml = new DOMParser().parseFromString(text1, "text/xml"); //Parses the text into a DOM and puts it in xml variable
     const XML = parse(xml);//uses parse function to create an object from the DOM and puts it in XML variable
-    createExcel(files,XML);//uses createExcel function to create the excel file from XML. files variable is passed to the function to read more files from it if needed
+    createExcel(files,XML,name);//uses createExcel function to create the excel file from XML. files variable is passed to the function to read more files from it if needed
     console.log(XML);
   });
 
