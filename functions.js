@@ -135,8 +135,6 @@ function getText(files,excel,target,row,column,result){
       text = text.replace(/{/g,"");
       text = text.replace(/\\/g, '');
       text = text.replace(/ldrslt/g,'');
-      console.log(text);
-      console.log(target.Title);
       excel.set({row:row,column:column,value:text});
       result[0][row - 2].longdescription = text;
       result[1][row - 2].longdescription = text;
@@ -161,7 +159,7 @@ function getShort(files,excel,target,row,column,result){
 
 function initialize(excel,XML){ //initializes the MetaData columns inside excel file
   excel.set({row:1,column:3,value:'Title'});
-  var hardCoded = ['id','label','outlineNumber','outlineLevel','parent', 'shortDescription', 'longDescription', 'label','classes'];
+  var hardCoded = ['id','parent','outlineNumber','outlineLevel','label', 'shortDescription', 'longDescription','classes'];
 
   var uno =[];
   XML.CustomMetaDataSettings.forEach(function(element){//This loop reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below

@@ -190,6 +190,7 @@ function createExcel(files,XML){//fetches data from XML, Uses addElement functio
   var result =[[],[]];
   var Binder = [XML.Binder[0]]; //puts Map in Binder varialble
   var excel = $JExcel.new(); //initiates excel file
+  excel.set( {sheet:0,value:"Structure" } ); //Setting the sheet name
   const uno = initialize(excel,XML);//uses initialize function to add all uno elements to the excel file. in rturn gets uno array and puts it in uno variable
   var row = 2;
   Binder.forEach(function(element,index){ //this forEach is here to go through all the elements in Binder if needed. But currently there is only map in Binder variable
@@ -220,7 +221,7 @@ function main(evt) { //This is the main function. Gets triggered when the button
     const xml = new DOMParser().parseFromString(text1, "text/xml"); //Parses the text into a DOM and puts it in xml variable
     const XML = parse(xml);//uses parse function to create an object from the DOM and puts it in XML variable
     createExcel(files,XML);//uses createExcel function to create the excel file from XML. files variable is passed to the function to read more files from it if needed
-    // console.log(XML);
+    console.log(XML);
   });
 
 }
