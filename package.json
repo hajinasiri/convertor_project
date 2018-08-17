@@ -1,0 +1,19 @@
+{
+  "name": "convertor_project",
+  "version": "1.0.0",
+  "description": "This is a project uses browser JS to read .scriv files from client side and create an excel file using the data. You need to open the parse.html file in your browser and select the file you need to convert",
+  "main": "convertor.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hajinasiri/convertor_project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hajinasiri/convertor_project/issues"
+  },
+  "homepage": "https://github.com/hajinasiri/convertor_project#readme"
+}
