@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/hajinasiri/convertor_project/issues"
   },
-  "homepage": "https://github.com/hajinasiri/convertor_project#readme"
+  "homepage": "https://github.com/hajinasiri/convertor_project#readme",
+  "dependencies": {
+    "from-xml": "^0.1.6",
+    "xml-parse": "^0.3.1",
+    "xml-parser": "^1.2.1",
+    "xmldoc": "^1.1.2"
+  }
 }
