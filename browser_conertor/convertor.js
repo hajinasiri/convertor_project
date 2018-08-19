@@ -15,7 +15,6 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
     outlineLevel = counter.length;
   }
 
-
   excel.set({row:row,column:uno.indexOf('parent') + 4,value:parent.Title});//sets the parent column in excel
 
   //filling the classes column
@@ -38,9 +37,6 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   result[0][row - 2 ]= {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
   result[1][row - 2 ] = {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
   propagate(XML,excel,row, target,parent,uno,counter,result);
-
-
-
 }
 
 
