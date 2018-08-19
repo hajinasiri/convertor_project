@@ -1,4 +1,5 @@
 var excel4node = require('excel4node'); //initiates excel file
+
 function createExcel(files,XML,name){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
   //uses propagate function to make child inherit MetaData from their parent
   var result =[[],[]];
@@ -31,24 +32,23 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
 }
 
 function initialize(excel,XML){ //initializes the MetaData columns inside excel file
-
+  excel.cell(1,3).string('Title');
 
   var hardCoded = ['id','parent','outlineNumber','outlineLevel','label', 'shortDescription', 'longDescription','classes'];
 
   var uno =[];
 
-  // console.log(XML.CustomMetaDataSettings);
-  // XML.CustomMetaDataSettings.forEach(function(element){//This loop reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below
-  //   if(element.Title !== 'id'){
-  //     uno.push(element.Title);
-  //   }
-  // });
-  // uno = hardCoded.concat(uno);
-  // uno.forEach(function(element,index){//This loop puts all the uno metaData Titles from uno array into the excel file
-  //   // excel.set({row:1,column:4+index,value:element});
-  //   // excel.cell(1,4+index).string(element);
-  // });
-  // uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
+  XML.CustomMetaDataSettings.forEach(function(element){//This loop reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below
+    if(element.Title !== 'id'){
+      uno.push(element.Title);
+    }
+  });
+  uno = hardCoded.concat(uno);
+  uno.forEach(function(element,index){//This loop puts all the uno metaData Titles from uno array into the excel file
+    // excel.set({row:1,column:4+index,value:element});
+    excel.cell(1,4+index).string(element);
+  });
+  uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
   return uno;
 }
 
