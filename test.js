@@ -30,10 +30,8 @@ parseString(text, function (err, result) {
   try {
     var BinderMap = result.ScrivenerProject.Binder[0].BinderItem[0];
     var XML = {}
-    // console.log(XML.ScrivenerProject.Binder[0].BinderItem[0].Children[0].BinderItem[0].Children);
-
     buildXML(BinderMap,XML);
-    // console.log(XML);
+    console.log(XML.Children[2].Keywords);
 
   }
   catch(err) {
@@ -107,26 +105,23 @@ function addToXML(target,counter,XML){
   eval(str+'={}');
  }
  var MetaData = "yes";
-  if(target.MetaData && target.MetaData[0] && target.MetaData[0].CustomMetaData && target.MetaData[0].CustomMetaData[0]){
-    if(target.MetaData[0].CustomMetaData[0].MetaDataItem){
-      var MetaData = target.MetaData[0].CustomMetaData[0].MetaDataItem;
-      MetaData = MetaData.map(a => {
-        var obj = {};
-        obj[a.FieldID] = a.FieldID[0];
-        obj.Value = a.Value[0]
-        return obj
-      })
-    }
+if(target.MetaData && target.MetaData[0] && target.MetaData[0].CustomMetaData && target.MetaData[0].CustomMetaData[0]){//extracting MetaData from rawXML target
+  if(target.MetaData[0].CustomMetaData[0].MetaDataItem){
+    var MetaData = target.MetaData[0].CustomMetaData[0].MetaDataItem;
+    MetaData = MetaData.map(a => {
+      var obj = {};
+      obj[a.FieldID] = a.FieldID[0];
+      obj.Value = a.Value[0]
+      return obj
+    })
   }
-  MetaData = {CustomMetaData:MetaData};
-
-
-
-
-  str += ' ={Title:"'+target.Title[0]+'",UUID:"'+target.$.UUID+'",MetaData:"'+MetaData+'"}';
-
-  eval(str);
-   console.log(XML);
+}
+MetaData = {CustomMetaData:MetaData};
+var keyStr = str;
+str += ' ={Title:"'+target.Title[0]+'",UUID:"'+target.$.UUID+'"}';//Setting Title and UUID for each children
+eval(str);
+eval(keyStr+'.MetaData=MetaData');//Setting the data for each children
+eval(keyStr+'.Keywords=target.Keywords[0].KeywordID')//setting the keywords for each children
 
 
 
