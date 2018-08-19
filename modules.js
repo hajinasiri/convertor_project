@@ -19,7 +19,7 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
     row += 1; //Then sets row number to the next row number
 
     if(element.Children){ //if there is children in Map, uses singleElement function to go through all the children inside map and gets the last row number from that function
-      // row = singleElement(XML,element,index,excel,row,files,uno,result);
+      row = singleElement(XML,element,index,excel,row,files,uno,result);
     }
 
   })
@@ -29,6 +29,56 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
   }, 300);
 
 }
+
+
+
+function singleElement(XML,element,index,excel,row,files,uno,result){
+  var counter =[0];//counter is the address to the current target that the code looks at. The code updates counter and then uses it to get the child
+  //each element position in the array reperesent the number of generation of the target, and the value reperesents the number of the child in its generation.
+  var finish = false; //finish variable changes to true when all the childs have been looked at and their data has been extracted. When finish is true the loop stops
+  var validation;
+  var target = element; //target is the current child
+  var parent = element; //the parent of the current child is stored in parent. This varible will be used to get the MetaData and pass it to the target if the target does not have the value for MetaData
+
+  while  (finish === false ) { //This loop starts from Map. If map has a child the loop updates variable counter to the address of that child. It goes on until the loop reaches the last genereation.
+    //Then goes one generation back and checks if there is any other child in that generation. If yes, updates the counter to the new address. If no, goes one more generation back.
+    //The loop continues searching like this until it goes through all the generation and children. Every child the loop goes through, uses addElement function to exctract the data from the child and add them to the excel file
+    validation = true;
+
+    for(i=0; i<counter.length; i++){ //this loop uses counter ass the address to get to the child and store it in the target variable
+      if(target.Children[counter[i]]){//if there is a child in that address, sets the target
+        target =target.Children[counter[i]];
+      }else{ // if there is not a child in that address sets validation false
+        validation = false;
+      }
+      if(i === (counter.length - 2)){
+        parent = target;
+      }
+    }
+
+
+    if(validation){//If the validation is true and there is a child in the address, addElement is used to add the data to the excel file
+      addElement(XML,target,files,counter,row,excel,uno,parent,result);
+       row += 1; //goes to the next row in excel
+      if(target.Children){ //if the target has children sets the counter to the first of them
+        counter.push(0);
+      }else{//if the target does not have children, sets counter to the next sibling of the target
+        counter[counter.length-1] +=1
+      }
+
+    }else{ //if there is not a child at the addressed obtained from the counter, sets counter to one generation back and the next sibling in that generation
+      counter.splice(-1,1);
+      counter[counter.length-1] +=1
+    }
+    target = element;//resets target to the first generation ancestor to make it ready to build the next address from
+
+    if(counter[0] == undefined){ // when the loop goes through all the children and then comes back to the first generation and there is no more sibling there, it goes one generation back and first element in counter becomes undefined. That's how the loop realizes it should end.
+      finish = true;
+    }
+  }
+  return row;
+}
+
 
 function initialize(excel,XML){ //initializes the MetaData columns inside excel file
   excel.cell(1,3).string('Title');
@@ -50,6 +100,7 @@ function initialize(excel,XML){ //initializes the MetaData columns inside excel 
   return uno;
 }
 
+
 function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   // getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
   // getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
@@ -61,10 +112,10 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   excel.cell(row,uno.indexOf('outlinenumber') + 4).string(outline);// sets the outline number in excel
   var outlineLevel;
   if(counter[0] === -1){//sets the outlinelevel column
-    excel.cell(row,uno.indexOf('outlinelevel') + 4).string('0');//sets 0 for map
+    excel.cell(row,uno.indexOf('outlinelevel') + 4).number(0);//sets 0 for map
     outlineLevel = 0;
   }else{
-    excel.cell(row,uno.indexOf('outlinelevel') + 4).string(counter.length);//calculates and sets outlinelevel for things other than map
+    excel.cell(row,uno.indexOf('outlinelevel') + 4).number(counter.length);//calculates and sets outlinelevel for things other than map
     outlineLevel = counter.length;
   }
 
