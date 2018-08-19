@@ -1,22 +1,13 @@
 var parseString = require('xml2js').parseString;
 var fs = require("fs");
+var modules = require('./modules');
 
 
-
-
-
-
-
-// var text = fs.readFileSync(".../scriv/Archive/workflow5.scriv/workflow5.scrivx").toString('utf-8');
-//To build the address to the scrivx file
 var f = "/Users/shahab/lighthouse/scriv/render2/render0.2.scriv";
 var n = f.lastIndexOf('/');
 var res = f.substr(n, f.length);
 f = f + '/' +res+'x';
 var text = fs.readFileSync(f).toString('utf-8');
-
-
-
 
 
 
@@ -26,10 +17,12 @@ if (fs.existsSync(f)) {
 
 parseString(text, function (err, result) {
   var settings = result.ScrivenerProject.CustomMetaDataSettings[0].MetaDataField;
-  settings = settings.map(a => {
-    return a.$
-  })
 
+  settings = settings.map(a => {
+    var obj =a.$;
+    obj.Title = a.Title[0];
+    return obj
+  });
   var output = {};
   output.CustomMetaDataSettings = settings;
 
@@ -41,25 +34,22 @@ parseString(text, function (err, result) {
   output.Keywords = Keywords;
 
 
-
-
-  var BinderMap = result.ScrivenerProject.Binder[0].BinderItem;
-  // console.log(result.ScrivenerProject.Binder[0].BinderItem);
+  var Binder = result.ScrivenerProject.Binder[0].BinderItem;//putting the Binder inside Binder Variable
   var MapArray;
   var config;
-  BinderMap.forEach(function(element){//Finding the map inside Binder
+  Binder.forEach(function(element){//Finding the map inside Binder
     if(element.Title[0] === 'Map'){
       MapArray = element;
     }else if(element.Title[0]= 'Recovered Files (Aug 18, 2018 at 8:17 PM)'){
       config = element;
     }
   });
-console.log(config.Children[0].BinderItem);
 
   var XML = {}
   XML = addToXML(MapArray,[],XML);
   buildXML(MapArray,XML);
   output.Binder = [XML];
+  modules.createExcel(f,output,'name');
 
 
 });
