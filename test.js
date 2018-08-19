@@ -20,25 +20,50 @@ var text = fs.readFileSync(f).toString('utf-8');
 
 
 
-
 if (fs.existsSync(f)) {
     var exist = true;
 }
 
 parseString(text, function (err, result) {
+  var settings = result.ScrivenerProject.CustomMetaDataSettings[0].MetaDataField;
+  settings = settings.map(a => {
+    return a.$
+  })
 
-  try {
-    var BinderMap = result.ScrivenerProject.Binder[0].BinderItem[0];
-    var XML = {}
-    buildXML(BinderMap,XML);
-    console.log(XML.Children[2].Keywords);
+  var output = {};
+  output.CustomMetaDataSettings = settings;
 
-  }
-  catch(err) {
-      console.log("There is not such fie");
-  }
+
+  var Keywords = result.ScrivenerProject.Keywords[0].Keyword;
+  Keywords = Keywords.map(a => {
+    return {ID:a.$.ID,Title:a.Title[0],Color:a.Color[0]}
+  })
+  output.Keywords = Keywords;
+
+
+
+
+  var BinderMap = result.ScrivenerProject.Binder[0].BinderItem;
+  // console.log(result.ScrivenerProject.Binder[0].BinderItem);
+  var MapArray;
+  var config;
+  BinderMap.forEach(function(element){//Finding the map inside Binder
+    if(element.Title[0] === 'Map'){
+      MapArray = element;
+    }else if(element.Title[0]= 'Recovered Files (Aug 18, 2018 at 8:17 PM)'){
+      config = element;
+    }
+  });
+console.log(config.Children[0].BinderItem);
+
+  var XML = {}
+  XML = addToXML(MapArray,[],XML);
+  buildXML(MapArray,XML);
+  output.Binder = [XML];
+
 
 });
+
 
 function buildXML (BinderMap,XML){
   var counter = [0];
@@ -91,40 +116,48 @@ function buildXML (BinderMap,XML){
 
 function addToXML(target,counter,XML){
   var str = 'XML';
-  counter.forEach(function(element){//making the string for going to the right address in XML
+  if(counter[0] !== undefined){//counter = [] is reserved for the Map object
 
-    str += '.Children[' + element+']';
-  })
-  var n = str.lastIndexOf('Children');
-  var res = str.substr(0,n) + 'Children';
+    counter.forEach(function(element){//making the string for going to the right address in XML
 
- if(!eval(res)){//cheking if the children does not exist in XML, making the Children empty array
-  eval(res+'=[]');
-
- }else if(!eval(str)){//Chekcing if the object in Children array does not exist, putting an empty object as its value
-  eval(str+'={}');
- }
- var MetaData = "yes";
-if(target.MetaData && target.MetaData[0] && target.MetaData[0].CustomMetaData && target.MetaData[0].CustomMetaData[0]){//extracting MetaData from rawXML target
-  if(target.MetaData[0].CustomMetaData[0].MetaDataItem){
-    var MetaData = target.MetaData[0].CustomMetaData[0].MetaDataItem;
-    MetaData = MetaData.map(a => {
-      var obj = {};
-      obj[a.FieldID] = a.FieldID[0];
-      obj.Value = a.Value[0]
-      return obj
+      str += '.Children[' + element+']';
     })
+    var n = str.lastIndexOf('Children');
+    var res = str.substr(0,n) + 'Children';
+
+   if(!eval(res)){//cheking if the children does not exist in XML, making the Children empty array
+    eval(res+'=[]');
+
+   }else if(!eval(str)){//Chekcing if the object in Children array does not exist, putting an empty object as its value
+    eval(str+'={}');
+   }
+ }
+
+ var MetaData = "yes";
+  if(target.MetaData && target.MetaData[0] && target.MetaData[0].CustomMetaData && target.MetaData[0].CustomMetaData[0]){//extracting MetaData from rawXML target
+    if(target.MetaData[0].CustomMetaData[0].MetaDataItem){
+      var MetaData = target.MetaData[0].CustomMetaData[0].MetaDataItem;
+      MetaData = MetaData.map(a => {
+        var obj = {};
+        obj[a.FieldID] = a.FieldID[0];
+        obj.Value = a.Value[0]
+        return obj
+      })
+    }
   }
-}
-MetaData = {CustomMetaData:MetaData};
-var keyStr = str;
-str += ' ={Title:"'+target.Title[0]+'",UUID:"'+target.$.UUID+'"}';//Setting Title and UUID for each children
-eval(str);
-eval(keyStr+'.MetaData=MetaData');//Setting the data for each children
-eval(keyStr+'.Keywords=target.Keywords[0].KeywordID')//setting the keywords for each children
+  MetaData = {CustomMetaData:MetaData};
+  var keyStr = str;
+  str += ' ={Title:"'+target.Title[0]+'",UUID:"'+target.$.UUID+'"}';//Setting Title and UUID for each children
 
+  eval(str);
 
+  eval(keyStr+'.MetaData=MetaData');//Setting the data for each children
 
+  if(target.Keywords && target.Keywords[0]){
+    eval(keyStr+'.Keywords=target.Keywords[0].KeywordID')//setting the keywords for each children
+
+  }
+  return XML
 }
 
 

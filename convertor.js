@@ -188,7 +188,12 @@ function singleElement(XML,element,index,excel,row,files,uno,result){
 function createExcel(files,XML,name){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
   //uses propagate function to make child inherit MetaData from their parent
   var result =[[],[]];
-  var Binder = [XML.Binder[0]]; //puts Map in Binder varialble
+  var Binder;
+  XML.Binder.forEach(function(element){//to find Map element and put it in Binder varialble
+    if(element.Title === 'Map'){
+      Binder = [element];
+    }
+  })
   var excel = $JExcel.new(); //initiates excel file
   excel.set( {sheet:0,value:"Structure" } ); //Setting the sheet name
   const uno = initialize(excel,XML);//uses initialize function to add all uno elements to the excel file. in rturn gets uno array and puts it in uno variable
