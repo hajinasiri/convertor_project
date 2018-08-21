@@ -31,6 +31,25 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
 }
 
 
+function initialize(excel,XML){ //initializes the MetaData columns inside excel file
+  excel.cell(1,3).string('Title');
+
+  var hardCoded = ['id','parent','outlineNumber','outlineLevel','label', 'shortDescription', 'longDescription','classes'];
+
+  var uno =[];
+
+  XML.CustomMetaDataSettings.forEach(function(element){//This loop reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below
+    if(element.Title !== 'id'){
+      uno.push(element.Title);
+    }
+  });
+  uno = hardCoded.concat(uno);
+  uno.forEach(function(element,index){//This loop puts all the uno metaData Titles from uno array into the excel file
+    excel.cell(1,4+index).string(element);
+  });
+  uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
+  return uno;
+}
 
 function singleElement(XML,element,index,excel,row,files,uno,result){
   var counter =[0];//counter is the address to the current target that the code looks at. The code updates counter and then uses it to get the child
@@ -79,28 +98,6 @@ function singleElement(XML,element,index,excel,row,files,uno,result){
   return row;
 }
 
-
-function initialize(excel,XML){ //initializes the MetaData columns inside excel file
-  excel.cell(1,3).string('Title');
-
-  var hardCoded = ['id','parent','outlineNumber','outlineLevel','label', 'shortDescription', 'longDescription','classes'];
-
-  var uno =[];
-
-  XML.CustomMetaDataSettings.forEach(function(element){//This loop reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below
-    if(element.Title !== 'id'){
-      uno.push(element.Title);
-    }
-  });
-  uno = hardCoded.concat(uno);
-  uno.forEach(function(element,index){//This loop puts all the uno metaData Titles from uno array into the excel file
-    excel.cell(1,4+index).string(element);
-  });
-  uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
-  return uno;
-}
-
-
 function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   // getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
   // getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
@@ -139,7 +136,98 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   excel.cell(row,uno.indexOf('classes') + 4).string(classes); //sets the value of classes column in excel as classes variable value
   result[0][row - 2 ]= {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
   result[1][row - 2 ] = {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
-  // propagate(XML,excel,row, target,parent,uno,counter,result);
+
+  propagate(XML,excel,row, target,parent,uno,counter,result);
 }
+
+
+function propagate(XML,excel,row, target,parent,uno,counter,result){
+
+  if(target.MetaData && target.MetaData.CustomMetaData){
+    var CustomMetaData = target.MetaData.CustomMetaData; //get the CustomMetaData from the child
+  }else{
+    var CustomMetaData = [];
+  }
+
+  if(!Array.isArray(CustomMetaData)){ // if the CustomMetaData is just one object put that object in an array to make
+    //all CustomMetaDatas of type of array
+    CustomMetaData = [CustomMetaData];
+  }
+
+  if(parent.MetaData && parent.MetaData.CustomMetaData){ //checks if the parent has CustomeMetaData. if yes, passes its value to parentMetaData
+    var parentMetaData = parent.MetaData.CustomMetaData;
+  }else{//if the parent does not have any MetaData sets parentMetaData as [] to make the code work
+    var parentMetaData = [];
+  }
+
+  if(!Array.isArray(parentMetaData)){ // if the CustomMetaData is just one object put that object in an array to make
+    //all CustomMetaDatas of type of array
+    parentMetaData = [parentMetaData];
+  }
+
+  var unoto = ''; // to initiate the value for unoto. This variable is used to check if the child has unoto value and if yes store the value in it
+  var unofrom = '';//To initiate the value for unfrom. This variable is used to chek if the child has unofrom value and if yes store the value in it
+  var id = target.Title.replace(/ /g,''); //assumming that the target has no id, and making id from title. If the target has its own id, it will update id in the loop below
+
+  uno.forEach(function(element,index){//goes through all the MetaData and checks if the child has that value or the parent and puts that vlue in excel file
+    var found = false;
+    CustomMetaData.forEach(function(childData){//Checks if the child has a value for it
+      if( childData.FieldID === element){
+        result[0][row - 2][element] = childData.Value;//putting all the properties of the uno inside the result arrays insid the row-2 element which is an array itself and inside it's first elemant
+        result[1][row - 2][element] = childData.Value;
+        excel.cell(row,index+ 4).string(childData.Value);
+        if(element === 'unoto'){//To check if the child has a value for unoto
+          unoto = childData.Value; //Then that value is stored in unoto variable
+        }else if(element === 'unofrom'){//To check if the child has a vlue for unofrom
+          unofrom = childData.Value; // Then that value is stored in unofrom variable
+        }else if(element === 'id'){ //Stroing the value for id in id varaiable
+          id = childData.Value;
+        }
+        found = true;
+      }
+    });
+    if(unoto && !unofrom && id){
+
+      excel.cell(row,uno.indexOf('unofrom') + 4).string(id); // if there is value for unoto, but no value for unofrom then the excel column value for unofrom is set as the value of id
+      result[0][row - 2].id = id; //and then put that value for id in result array
+      result[1][row - 2].id = id;
+    }
+
+    //making the object of inheritable properties
+    const inheritable = {'classes':'',hoveraction:'',hoverfunction:'',clickaction:'',clickfunction:'',ondoubleclick:'',tooltip:'',infopane:'',onfunction:'',
+      offfunction:'',openfunction:'',closefunction:'',ttstyle:'',render:'',symbol:'',location:'',xpos:'',ypos:'',xscale:'',yscale:'',xoffset:'',
+      yoffset:'',xsize:'', ysize: ''};
+    if(!found && element in inheritable){//if the child didn't have any value for the MetaData and the property is among the inheritables
+
+      parentMetaData.forEach(function(parentData){//checks if the parent has the data for it
+
+        if( parentData.FieldID === element){
+          // excel.set({row:row,column:4+index,value:parentData.Value});
+          excel.cell(row,index+ 4).string(parentData.Value);
+          result[1][row - 2][element] = parentData.Value;
+          var str = 'XML.Binder[0]';
+
+          for(i=0; i<counter.length; i++){//builds the XML endpoint that should change. at the endpoint the value for the data will be added from the parent
+            str += '.Children[' + String(counter[i]) + ']';
+          }
+
+
+          if(typeof(target.MetaData.CustomMetaData) !== 'object'){//checks if CustomMetaData is not an array makes it an array
+            eval(str + '.MetaData = {}')//makes MetaData inside XML an object
+            eval(str + '.MetaData.CustomMetaData=[]'); // makes the CustomMetaData key to MetaData and puts [] as its value
+          }else if(!Array.isArray(target.MetaData.CustomMetaData)){
+            var text = str + '.MetaData.CustomMetaData=['+JSON.stringify(target.MetaData.CustomMetaData)+']';
+            eval(text);
+          }
+
+          str += '.MetaData.CustomMetaData.push({FieldID:'+'"'+ element+'"' +',Value:'+'"'+parentData.Value+'"'+'})'; //builds the string to
+          // add the value to the child from the parent
+          eval(str); //executes adding the MetaData to the child
+        }
+      });
+    }
+  })
+}
+
 
 module.exports =  {createExcel}

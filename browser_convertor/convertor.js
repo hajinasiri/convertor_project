@@ -120,12 +120,7 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
           // add the value to the child from the parent
           eval(str); //executes adding the MetaData to the child
         }
-
       });
-
-
-
-
     }
   })
 }

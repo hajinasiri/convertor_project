@@ -129,7 +129,7 @@ function addToXML(target,counter,XML){
       var MetaData = target.MetaData[0].CustomMetaData[0].MetaDataItem;
       MetaData = MetaData.map(a => {
         var obj = {};
-        obj[a.FieldID] = a.FieldID[0];
+        obj.FieldID = a.FieldID[0];
         obj.Value = a.Value[0]
         return obj
       })
