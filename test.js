@@ -4,6 +4,9 @@ var modules = require('./modules');
 
 
 var f = "/Users/shahab/lighthouse/scriv/render2/render0.2.scriv";
+
+
+
 var n = f.lastIndexOf('/');
 var res = f.substr(n, f.length);
 f = f + '/' +res+'x';
