@@ -24,9 +24,10 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
     }
 
   })
-
+  var path = files.substr(0,files.lastIndexOf('.scriv'))//Getting rid of the scrivx file in the path
+  path = path.substr(0,path.lastIndexOf('.scriv'))+ '.xlsx';//building address for excel file
   setTimeout(function(){
-    workbook.write('Excel.xlsx');; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
+    workbook.write(path);; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
   }, 300);
 
 }
