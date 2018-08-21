@@ -1,4 +1,5 @@
 var excel4node = require('excel4node'); //initiates excel file
+var fs = require("fs");
 
 function createExcel(files,XML,name){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
   //uses propagate function to make child inherit MetaData from their parent
@@ -99,8 +100,6 @@ function singleElement(XML,element,index,excel,row,files,uno,result){
 }
 
 function addElement(XML,target,files,counter,row,excel,uno,parent,result){
-  // getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
-  // getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
   var outline = counter.map(a => a+1).map(String ).reduce((a, b) => a + '-' + b); //calculates outline number from counter variable
   excel.cell(row,3).string(target.Title);//sets the title column in excel
 
@@ -136,6 +135,8 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   excel.cell(row,uno.indexOf('classes') + 4).string(classes); //sets the value of classes column in excel as classes variable value
   result[0][row - 2 ]= {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
   result[1][row - 2 ] = {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
+    getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
+  // getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
 
   propagate(XML,excel,row, target,parent,uno,counter,result);
 }
@@ -227,6 +228,20 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
       });
     }
   })
+}
+
+function getShort(files,excel,target,row,column,result){
+  if(target.UUID){//if the target has UUID this part will play
+    const UUID = target.UUID;
+    var path = files.substr(0,files.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/synopsis.txt';//building address of the synopsis.txt
+    if (fs.existsSync(path)) {//if the synopsis.txt exests
+      var exist = true;
+      var text = fs.readFileSync(path).toString('utf-8');//This line reads the synopsis.txt
+      excel.cell(row,column).string(text);//This line puts text inside excel file in shortDescription column
+      // result[0][row - 2].shortdescription = text;//This puts text inside result element 0 as shortdescription
+      // result[1][row - 2].shortdescription = text;//This puts text inside result element 1 as shortdescription
+    }
+  }
 }
 
 
