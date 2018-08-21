@@ -235,13 +235,52 @@ function getShort(files,excel,target,row,column,result){
     const UUID = target.UUID;
     var path = files.substr(0,files.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/synopsis.txt';//building address of the synopsis.txt
     if (fs.existsSync(path)) {//if the synopsis.txt exests
-      var exist = true;
       var text = fs.readFileSync(path).toString('utf-8');//This line reads the synopsis.txt
       excel.cell(row,column).string(text);//This line puts text inside excel file in shortDescription column
-      // result[0][row - 2].shortdescription = text;//This puts text inside result element 0 as shortdescription
-      // result[1][row - 2].shortdescription = text;//This puts text inside result element 1 as shortdescription
+      result[0][row - 2].shortdescription = text;//This puts text inside result element 0 as shortdescription
+      result[1][row - 2].shortdescription = text;//This puts text inside result element 1 as shortdescription
     }
   }
+}
+
+function getText(files,excel,target,row,column,result){
+  if(target.UUID){
+    const UUID = target.UUID;
+    var path = files.substr(0,files.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
+    if (fs.existsSync(path)) {//if the content.rtf exests
+      var text = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
+      const begin = text.indexOf('fs20') + 'fs20'.length;
+      const end = text.indexOf('fs24 <') - 1;
+      text = text.slice(begin, end);
+      text = text.replace('cf0', '');
+      text = text.replace(/'91/g, "'");
+      text = text.replace(/'92/g, "'");
+      text = text.replace(/a0/g, ' ');
+
+      var first,sub,last,portion;
+      first = text.indexOf("fldinst{HYPERLINK");
+      while(first > -1){ //until there is no more hyperlink
+        //to get rid of the whole hyperlink
+        first = first -11; // -11 is to compensate for the "{\field{\*\" which comes before this string
+
+        sub =  text.substr(first,text.length);
+        last = sub.indexOf('}}');
+        portion = text.slice(first, last+first+2);
+        text = text.replace(portion,'');
+        first = text.indexOf("fldinst{HYPERLINK");
+      }
+
+      text = text.replace(/}}/g,"");
+      text = text.replace(/{/g,"");
+      text = text.replace(/\\/g, '');
+      text = text.replace(/ldrslt/g,'');
+      excel.cell(row,column).string(text);//This line puts text inside excel file in longDescription column
+      result[0][row - 2].longdescription = text;
+      result[1][row - 2].longdescription = text;
+
+    }
+  }
+
 }
 
 
