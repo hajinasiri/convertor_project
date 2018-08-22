@@ -138,6 +138,17 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   result[1][row - 2 ] = {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
     getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
   // getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
+  var out = outline.substr(0,outline.lastIndexOf('-'));//calculating the parent's outline number
+  if(counter.length === 1){//if the target is first child, sets the outlinenumber to 0 which is Map's outline number
+    out = '0';
+  }
+
+  var par= result[1].filter(element => element.outlineNumber === out)[0];//Get's the element with the outline number of parent and puts it in par variable
+  if(counter[0] === -1){//if the target is Map, puts the object below as the parent
+    parent = {Title: "Binder"};
+  }else{//otherwise sets par as the parent
+    parent = par
+  }
 
   propagate(XML,excel,row, target,parent,uno,counter,result);
 }
@@ -156,21 +167,10 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
     CustomMetaData = [CustomMetaData];
   }
 
-  if(parent.MetaData && parent.MetaData.CustomMetaData){ //checks if the parent has CustomeMetaData. if yes, passes its value to parentMetaData
-    var parentMetaData = parent.MetaData.CustomMetaData;
-  }else{//if the parent does not have any MetaData sets parentMetaData as [] to make the code work
-    var parentMetaData = [];
-  }
-
-  if(!Array.isArray(parentMetaData)){ // if the CustomMetaData is just one object put that object in an array to make
-    //all CustomMetaDatas of type of array
-    parentMetaData = [parentMetaData];
-  }
-
   var unoto = ''; // to initiate the value for unoto. This variable is used to check if the child has unoto value and if yes store the value in it
   var unofrom = '';//To initiate the value for unfrom. This variable is used to chek if the child has unofrom value and if yes store the value in it
   var id = target.Title.replace(/ /g,''); //assumming that the target has no id, and making id from title. If the target has its own id, it will update id in the loop below
-
+  var label = 0;
   uno.forEach(function(element,index){//goes through all the MetaData and checks if the child has that value or the parent and puts that vlue in excel file
     var found = false;
     CustomMetaData.forEach(function(childData){//Checks if the child has a value for it
@@ -184,6 +184,8 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
           unofrom = childData.Value; // Then that value is stored in unofrom variable
         }else if(element === 'id'){ //Stroing the value for id in id varaiable
           id = childData.Value;
+        }else if(element === 'label'){
+          label = childData.Value;
         }
         found = true;
       }
@@ -195,38 +197,23 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
       result[1][row - 2].id = id;
     }
 
+    if(!label && id){
+      excel.cell(row,uno.indexOf('label') + 4).string(id);
+      result[0][row - 2].label = id; //and then put that value for id in result array
+      result[1][row - 2].label = id;
+    }
+
     //making the object of inheritable properties
     const inheritable = {'classes':'',hoveraction:'',hoverfunction:'',clickaction:'',clickfunction:'',ondoubleclick:'',tooltip:'',infopane:'',onfunction:'',
       offfunction:'',openfunction:'',closefunction:'',ttstyle:'',render:'',symbol:'',location:'',xpos:'',ypos:'',xscale:'',yscale:'',xoffset:'',
-      yoffset:'',xsize:'', ysize: ''};
+      yoffset:'',xsize:'', ysize: ''
+    };
+
     if(!found && element in inheritable){//if the child didn't have any value for the MetaData and the property is among the inheritables
-
-      parentMetaData.forEach(function(parentData){//checks if the parent has the data for it
-
-        if( parentData.FieldID === element){
-          // excel.set({row:row,column:4+index,value:parentData.Value});
-          excel.cell(row,index+ 4).string(parentData.Value);
-          result[1][row - 2][element] = parentData.Value;
-          var str = 'XML.Binder[0]';
-
-          for(i=0; i<counter.length; i++){//builds the XML endpoint that should change. at the endpoint the value for the data will be added from the parent
-            str += '.Children[' + String(counter[i]) + ']';
-          }
-
-
-          if(typeof(target.MetaData.CustomMetaData) !== 'object'){//checks if CustomMetaData is not an array makes it an array
-            eval(str + '.MetaData = {}')//makes MetaData inside XML an object
-            eval(str + '.MetaData.CustomMetaData=[]'); // makes the CustomMetaData key to MetaData and puts [] as its value
-          }else if(!Array.isArray(target.MetaData.CustomMetaData)){
-            var text = str + '.MetaData.CustomMetaData=['+JSON.stringify(target.MetaData.CustomMetaData)+']';
-            eval(text);
-          }
-
-          str += '.MetaData.CustomMetaData.push({FieldID:'+'"'+ element+'"' +',Value:'+'"'+parentData.Value+'"'+'})'; //builds the string to
-          // add the value to the child from the parent
-          eval(str); //executes adding the MetaData to the child
-        }
-      });
+      if(element in parent){//checking if the parent has the MetaData
+        excel.cell(row,4+index).string(parent[element]);
+        result[1][row - 2][element] = parent[element];
+      }
     }
   })
 }

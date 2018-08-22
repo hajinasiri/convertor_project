@@ -1,22 +1,21 @@
 var parseString = require('xml2js').parseString;
 var fs = require("fs");
 var modules = require('./modules');
+var prompt = require('prompt');
+
+var f = process.argv[2];
+console.log(f);
 
 
-var f = "/Users/shahab/lighthouse/scriv/render2/render0.2.scriv";
 
 
+
+// var f = "/Users/shahab/lighthouse/scriv/render2/render0.2.scriv";
 
 var n = f.lastIndexOf('/');
 var res = f.substr(n, f.length);
 f = f + '/' +res+'x';
 var text = fs.readFileSync(f).toString('utf-8');
-
-
-
-if (fs.existsSync(f)) {
-    var exist = true;
-}
 
 parseString(text, function (err, result) {
   var settings = result.ScrivenerProject.CustomMetaDataSettings[0].MetaDataField;
