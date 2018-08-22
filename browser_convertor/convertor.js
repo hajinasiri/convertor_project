@@ -13,7 +13,7 @@ function addElement(XML,target,files,counter,row,excel,uno,result){
     outlineLevel = counter.length;
   }
 
-  excel.set({row:row,column:uno.indexOf('parent') + 4,value:parent.Title});//sets the parent column in excel
+
 
   //filling the classes column
   var Keys = XML.Keywords;
@@ -46,18 +46,19 @@ function addElement(XML,target,files,counter,row,excel,uno,result){
 
   var par= result[1].filter(element => element.outlineNumber === out)[0];//Get's the element with the outline number of parent and puts it in par variable
   if(counter[0] === -1){//if the target is Map, puts the object below as the parent
-    parent = {Title: "Binder"};
+    parent = {title: "Binder"};
   }else{//otherwise sets par as the parent
     parent = par
   }
-
+  excel.set({row:row,column:uno.indexOf('parent') + 4,value:parent.title});//sets the parent column in excel
   propagate(XML,excel,row, target,parent,uno,counter,result);
 
 }
 
 
 function propagate(XML,excel,row, target,parent,uno,counter,result){
-
+  console.log(parent.title);
+  console.log(counter);
   if(target.MetaData && target.MetaData.CustomMetaData){
     var CustomMetaData = target.MetaData.CustomMetaData; //get the CustomMetaData from the child
   }else{
@@ -173,6 +174,7 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
       Binder = [element];
     }
   })
+  console.log('Binder:',Binder);
   var excel = $JExcel.new(); //initiates excel file
   excel.set( {sheet:0,value:"Structure" } ); //Setting the sheet name
   const uno = initialize(excel,XML);//uses initialize function to add all uno elements to the excel file. in rturn gets uno array and puts it in uno variable

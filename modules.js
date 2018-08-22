@@ -116,7 +116,6 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
     outlineLevel = counter.length;
   }
 
-  excel.cell(row,uno.indexOf('parent') + 4).string(parent.Title);//sets the parent column in excel
   //filling the classes column
   var Keys = XML.Keywords;
   var Keywords = target.Keywords;
@@ -145,11 +144,11 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
 
   var par= result[1].filter(element => element.outlineNumber === out)[0];//Get's the element with the outline number of parent and puts it in par variable
   if(counter[0] === -1){//if the target is Map, puts the object below as the parent
-    parent = {Title: "Binder"};
+    parent = {title: "Binder"};
   }else{//otherwise sets par as the parent
     parent = par
   }
-
+  excel.cell(row,uno.indexOf('parent') + 4).string(parent.title);//sets the parent column in excel
   propagate(XML,excel,row, target,parent,uno,counter,result);
 }
 
@@ -237,8 +236,12 @@ function getText(files,excel,target,row,column,result){
     var path = files.substr(0,files.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
 
     if (fs.existsSync(path)) {//if the content.rtf exests
-      console.log(path)
+
       var text = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
+      // if(target.title.indexOf('Image ') > -1){
+      //   console.log(rawText);
+      // }
+
       const begin = text.indexOf('fs20') + 'fs20'.length;
       const end = text.indexOf('fs24 <') - 1;
       text = text.slice(begin, end);
@@ -259,6 +262,28 @@ function getText(files,excel,target,row,column,result){
         text = text.replace(portion,'');
         first = text.indexOf("fldinst{HYPERLINK");
       }
+
+
+
+// {\*\shppict{\pict {\*\nisusfilename"
+      first = text.indexOf("nisusfilename"); //getting rid of the image part
+
+
+
+      while(first > -1){ //until there is no more hyperlink
+        //to get rid of the whole hyperlink
+        first = first - 22;
+        sub =  text.substr(first,text.length);
+        // last = sub.indexOf('}}}');
+        last = text.lastIndexOf('}')
+
+
+        portion = text.slice(first, last+first+3);
+        text = text.replace(portion,'');
+        first = text.indexOf("fldinst{HYPERLINK");
+
+      }
+
 
       text = text.replace(/}}/g,"");
       text = text.replace(/{/g,"");

@@ -4,13 +4,7 @@ var modules = require('./modules');
 var prompt = require('prompt');
 
 var f = process.argv[2];
-console.log(f);
-
-
-
-
-
-// var f = "/Users/shahab/lighthouse/scriv/render2/render0.2.scriv";
+// var f = "/Users/shahab/lighthouse/scriv/render2.1/render0.2.scriv";
 
 var n = f.lastIndexOf('/');
 var res = f.substr(n, f.length);
@@ -37,15 +31,17 @@ parseString(text, function (err, result) {
 
 
   var Binder = result.ScrivenerProject.Binder[0].BinderItem;//putting the Binder inside Binder Variable
+
   var MapArray;
   var config;
   Binder.forEach(function(element){//Finding the map inside Binder
     if(element.Title[0] === 'Map'){
       MapArray = element;
-    }else if(element.Title[0]= 'Recovered Files (Aug 18, 2018 at 8:17 PM)'){
+    }else if(element.Title[0] === 'config.json'){
       config = element;
     }
   });
+  createConfig(f,config);
 
   var XML = {}
   XML = addToXML(MapArray,[],XML);
@@ -56,6 +52,35 @@ parseString(text, function (err, result) {
 
 });
 
+function createConfig(f,config){
+  if(config.$.UUID){
+    const UUID = config.$.UUID;
+    var path = f.substr(0,f.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';
+    if (fs.existsSync(path)) {//if the content.rtf exests
+      var content = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
+      content = content.replace(/\\/g, '');
+
+      var comma = content.indexOf(',');//finding the index of first ','. it only occures inside the main object
+      sub =  content.substr(0,comma);//getting the subtext from the beginning until the comma
+      var indices = [];
+      for(var i=0; i<sub.length;i++) { //getting all the occurances of "{" inside that subtext. The last would be the beginning of the object
+          if (sub[i] === "{") indices.push(i);
+      }
+      content = content.substr(Math.max(...indices),content.length);//getting the text from the last occurance of "{" to the end. The begining of this text is the object
+      content = content.substr(0,content.indexOf('}')+ 1) //getting rid of anything after the first '}'. the first occurance of '}' would be the end of object
+      var configPath = f.substr(0,f.lastIndexOf('/') - 1);
+      configPath = configPath.substr(0,configPath.lastIndexOf('/')) + '/config.json';
+      console.log(configPath);
+      fs.writeFile(configPath, content, function(err) {
+        if(err) {
+          return console.log(err);
+        }
+
+        console.log("config.json file was saved!");
+        });
+    }
+  }
+}
 
 function buildXML (BinderMap,XML){
   var counter = [0];
@@ -151,8 +176,6 @@ function addToXML(target,counter,XML){
   }
   return XML
 }
-
-
 
 
 

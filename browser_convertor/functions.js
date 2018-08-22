@@ -109,6 +109,7 @@ function getText(files,excel,target,row,column,result){
     const UUID = target.UUID;
     const textPath = findFile(files,'webkitRelativePath',UUID,'.rtf');
     readSingleFile(textPath,function(rawText){
+
       var text = rawText;
       const begin = text.indexOf('fs20') + 'fs20'.length;
       const end = text.indexOf('fs24 <') - 1;
@@ -129,6 +130,25 @@ function getText(files,excel,target,row,column,result){
         portion = text.slice(first, last+first+2);
         text = text.replace(portion,'');
         first = text.indexOf("fldinst{HYPERLINK");
+      }
+
+      // {\*\shppict{\pict {\*\nisusfilename"
+      first = text.indexOf("nisusfilename"); //getting rid of the image part
+
+
+
+      while(first > -1){ //until there is no more hyperlink
+        //to get rid of the whole hyperlink
+        first = first - 22;
+        sub =  text.substr(first,text.length);
+        // last = sub.indexOf('}}}');
+        last = text.lastIndexOf('}')
+
+
+        portion = text.slice(first, last+first+3);
+        text = text.replace(portion,'');
+        first = text.indexOf("fldinst{HYPERLINK");
+
       }
 
       text = text.replace(/}}/g,"");
