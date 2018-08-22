@@ -11,79 +11,48 @@ var res = f.substr(n, f.length);
 f = f + '/' +res+'x';
 var text = fs.readFileSync(f).toString('utf-8');
 
-  var resultt =[[],[]];
+  // var resultt =[[],[]];
 
-parseString(text, function (err, result) {
-  var settings = result.ScrivenerProject.CustomMetaDataSettings[0].MetaDataField;
+parseString(text, function (err, result) {//this line parses the text. the output is text. Then the desirable XML format will be built from this output
+  var settings = result.ScrivenerProject.CustomMetaDataSettings[0].MetaDataField;//getting the metaDataSettings from the parsed text
 
-  settings = settings.map(a => {
+  settings = settings.map(a => {//This creates a desirable format of settings and puts it inside the settings
     var obj =a.$;
     obj.Title = a.Title[0];
     return obj
   });
   var output = {};
-  output.CustomMetaDataSettings = settings;
+  output.CustomMetaDataSettings = settings;//output is the variable holding the desirable XML format. This line adds the settings to it
 
 
-  var Keywords = result.ScrivenerProject.Keywords[0].Keyword;
-  Keywords = Keywords.map(a => {
+  var Keywords = result.ScrivenerProject.Keywords[0].Keyword;//reads the Kewords from text
+  Keywords = Keywords.map(a => {//makes the format desirable
     return {ID:a.$.ID,Title:a.Title[0],Color:a.Color[0]}
   })
-  output.Keywords = Keywords;
+  output.Keywords = Keywords;//adds the desirable format of keywords to the output
 
 
-  var Binder = result.ScrivenerProject.Binder[0].BinderItem;//putting the Binder inside Binder Variable
+  var Binder = result.ScrivenerProject.Binder[0].BinderItem;//putts the Binder inside Binder Variable
 
   var MapArray;
   var config;
-  Binder.forEach(function(element){//Finding the map inside Binder
+  Binder.forEach(function(element){//Finds the map inside Binder
     if(element.Title[0] === 'Map'){
       MapArray = element;
-    }else if(element.Title[0] === 'config.json'){
+    }else if(element.Title[0] === 'config.json'){//finds config and pust it in config variable
       config = element;
     }
   });
-  createConfig(f,config,resultt);
-
+  var configObject = modules.createConfig(f,config);//creates the confing.json file
   var XML = {}
-  XML = addToXML(MapArray,[],XML);
-  buildXML(MapArray,XML);
-  output.Binder = [XML];
-  reusltt = modules.createExcel(f,output,'name',resultt);
-  // console.log(resultt)
-
-
+  XML = addToXML(MapArray,[],XML);//adds map object to the final xml
+  buildXML(MapArray,XML);//builds the desirable xml format from MapArray
+  output.Binder = [XML];//sets the output.Binder to an array with XML inside
+  var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
+  //and returns an array of the unos. first element contains all the unos withouth inheriting and the second one all hte unos with inheriting
 });
 
-function createConfig(f,config,result){
-  if(config.$.UUID){
-    const UUID = config.$.UUID;
-    var path = f.substr(0,f.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';
-    if (fs.existsSync(path)) {//if the content.rtf exests
-      var content = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
-      content = content.replace(/\\/g, '');
 
-      var comma = content.indexOf(',');//finding the index of first ','. it only occures inside the main object
-      sub =  content.substr(0,comma);//getting the subtext from the beginning until the comma
-      var indices = [];
-      for(var i=0; i<sub.length;i++) { //getting all the occurances of "{" inside that subtext. The last would be the beginning of the object
-          if (sub[i] === "{") indices.push(i);
-      }
-      content = content.substr(Math.max(...indices),content.length);//getting the text from the last occurance of "{" to the end. The begining of this text is the object
-      content = content.substr(0,content.indexOf('}')+ 1) //getting rid of anything after the first '}'. the first occurance of '}' would be the end of object
-      var configPath = f.substr(0,f.lastIndexOf('/') - 1);
-      configPath = configPath.substr(0,configPath.lastIndexOf('/')) + '/config.json';
-      console.log(configPath);
-      fs.writeFile(configPath, content, function(err) {
-        if(err) {
-          return console.log(err);
-        }
-
-        console.log("config.json file was saved!");
-        });
-    }
-  }
-}
 
 function buildXML (BinderMap,XML){
   var counter = [0];
@@ -95,8 +64,6 @@ function buildXML (BinderMap,XML){
 
   while(finish === false){
 
-
-    // console.log(counter);
     validation = true;
 
      for(i=0; i<counter.length; i++){ //this loop uses counter as the address to get to the child and store it in the target variable
@@ -179,10 +146,3 @@ function addToXML(target,counter,XML){
   }
   return XML
 }
-
-
-
-
-
-
-

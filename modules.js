@@ -1,8 +1,9 @@
 var excel4node = require('excel4node'); //initiates excel file
 var fs = require("fs");
 
-function createExcel(files,XML,name,result){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
+function createExcel(files,XML,name){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
   //uses propagate function to make child inherit MetaData from their parent
+  var result =[[],[]];
 
   var Binder;
   XML.Binder.forEach(function(element){//to find Map element and put it in Binder varialble
@@ -26,10 +27,8 @@ function createExcel(files,XML,name,result){//fetches data from XML, Uses addEle
   })
   var path = files.substr(0,files.lastIndexOf('.scriv'))//Getting rid of the scrivx file in the path
   path = path.substr(0,path.lastIndexOf('.scriv'))+ '.xlsx';//building address for excel file
-
-    workbook.write(path);; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
-
-
+  workbook.write(path);; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
+  return result
 }
 
 
@@ -312,4 +311,38 @@ function getText(files,excel,target,row,column,result){
 }
 
 
-module.exports =  {createExcel}
+function createConfig(f,config){
+  if(config.$.UUID){
+    const UUID = config.$.UUID;
+    var path = f.substr(0,f.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';
+    if (fs.existsSync(path)) {//if the content.rtf exests
+      var content = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
+      content = content.replace(/\\/g, '');
+
+      var comma = content.indexOf(',');//finding the index of first ','. it only occures inside the main object
+      sub =  content.substr(0,comma);//getting the subtext from the beginning until the comma
+      var indices = [];
+      for(var i=0; i<sub.length;i++) { //getting all the occurances of "{" inside that subtext. The last would be the beginning of the object
+          if (sub[i] === "{") indices.push(i);
+      }
+      content = content.substr(Math.max(...indices),content.length);//getting the text from the last occurance of "{" to the end. The begining of this text is the object
+      content = content.substr(0,content.indexOf('}')+ 1) //getting rid of anything after the first '}'. the first occurance of '}' would be the end of object
+      var configPath = f.substr(0,f.lastIndexOf('/') - 1);
+      configPath = configPath.substr(0,configPath.lastIndexOf('/')) + '/config.json';
+      console.log(configPath);
+      fs.writeFile(configPath, content, function(err) {
+        if(err) {
+          return console.log(err);
+        }
+        console.log("config.json file was saved!");
+      });
+      var object = JSON.parse(content);
+      console.log(object);
+    }
+  }
+}
+
+
+module.exports =  {createExcel,createConfig}
+
+
