@@ -136,8 +136,8 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   excel.cell(row,uno.indexOf('classes') + 4).string(classes); //sets the value of classes column in excel as classes variable value
   result[0][row - 2 ]= {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
   result[1][row - 2 ] = {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
-    getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
-  // getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
+  getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
+  getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
   var out = outline.substr(0,outline.lastIndexOf('-'));//calculating the parent's outline number
   if(counter.length === 1){//if the target is first child, sets the outlinenumber to 0 which is Map's outline number
     out = '0';
@@ -235,7 +235,9 @@ function getText(files,excel,target,row,column,result){
   if(target.UUID){
     const UUID = target.UUID;
     var path = files.substr(0,files.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
+
     if (fs.existsSync(path)) {//if the content.rtf exests
+      console.log(path)
       var text = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
       const begin = text.indexOf('fs20') + 'fs20'.length;
       const end = text.indexOf('fs24 <') - 1;
