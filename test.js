@@ -11,6 +11,8 @@ var res = f.substr(n, f.length);
 f = f + '/' +res+'x';
 var text = fs.readFileSync(f).toString('utf-8');
 
+  var resultt =[[],[]];
+
 parseString(text, function (err, result) {
   var settings = result.ScrivenerProject.CustomMetaDataSettings[0].MetaDataField;
 
@@ -41,18 +43,19 @@ parseString(text, function (err, result) {
       config = element;
     }
   });
-  createConfig(f,config);
+  createConfig(f,config,resultt);
 
   var XML = {}
   XML = addToXML(MapArray,[],XML);
   buildXML(MapArray,XML);
   output.Binder = [XML];
-  modules.createExcel(f,output,'name');
+  reusltt = modules.createExcel(f,output,'name',resultt);
+  // console.log(resultt)
 
 
 });
 
-function createConfig(f,config){
+function createConfig(f,config,result){
   if(config.$.UUID){
     const UUID = config.$.UUID;
     var path = f.substr(0,f.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';

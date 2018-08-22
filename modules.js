@@ -1,9 +1,9 @@
 var excel4node = require('excel4node'); //initiates excel file
 var fs = require("fs");
 
-function createExcel(files,XML,name){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
+function createExcel(files,XML,name,result){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
   //uses propagate function to make child inherit MetaData from their parent
-  var result =[[],[]];
+
   var Binder;
   XML.Binder.forEach(function(element){//to find Map element and put it in Binder varialble
     if(element.Title === 'Map'){
@@ -127,11 +127,14 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   var classes = '';
   Keywords.forEach(function(element){//Gets the Keywords of each uno, finds the value of that key in Keywords of the Binder and adds all the keys for the uno and puts the value in classes variable
     Keys.forEach(function(key){
+
       if(key.ID === element){
         classes += ' ' + key.Title;
+
       }
     })
   });
+
   excel.cell(row,uno.indexOf('classes') + 4).string(classes); //sets the value of classes column in excel as classes variable value
   result[0][row - 2 ]= {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
   result[1][row - 2 ] = {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
@@ -148,6 +151,7 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   }else{//otherwise sets par as the parent
     parent = par
   }
+  // console.log('target:',target.Title,',parent:', parent.title);
   excel.cell(row,uno.indexOf('parent') + 4).string(parent.title);//sets the parent column in excel
   propagate(XML,excel,row, target,parent,uno,counter,result);
 }
@@ -171,11 +175,13 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
   var id = target.Title.replace(/ /g,''); //assumming that the target has no id, and making id from title. If the target has its own id, it will update id in the loop below
   var label = 0;
   uno.forEach(function(element,index){//goes through all the MetaData and checks if the child has that value or the parent and puts that vlue in excel file
+
     var found = false;
     CustomMetaData.forEach(function(childData){//Checks if the child has a value for it
       if( childData.FieldID === element){
         result[0][row - 2][element] = childData.Value;//putting all the properties of the uno inside the result arrays insid the row-2 element which is an array itself and inside it's first elemant
         result[1][row - 2][element] = childData.Value;
+
         excel.cell(row,index+ 4).string(childData.Value);
         if(element === 'unoto'){//To check if the child has a value for unoto
           unoto = childData.Value; //Then that value is stored in unoto variable
@@ -189,6 +195,13 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
         found = true;
       }
     });
+
+    if(element === 'classes' && result[0][row - 2].classes){//since 'classes' does not show up in metaData object and it's built from Keywords,
+      //the loop abot does not find classes and keeps found variable's value 'false'. This "if" checks if the class is already set in the result
+    //array, sets found variable to true to prevent inheriting class from parent
+      found = true;
+    };
+
     if(unoto && !unofrom && id){
 
       excel.cell(row,uno.indexOf('unofrom') + 4).string(id); // if there is value for unoto, but no value for unofrom then the excel column value for unofrom is set as the value of id
