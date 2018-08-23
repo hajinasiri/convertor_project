@@ -49,7 +49,7 @@ parseString(text, function (err, result) {//this line parses the text. the outpu
   buildXML(MapArray,XML);//builds the desirable xml format from MapArray
   output.Binder = [XML];//sets the output.Binder to an array with XML inside
   var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
-  //and returns an array of the unos. first element contains all the unos withouth inheriting and the second one all hte unos with inheriting
+  modules.findDuplicates(finalResult);//check if there are duplicate ids
 });
 
 

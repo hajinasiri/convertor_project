@@ -329,7 +329,6 @@ function createConfig(f,config){
       content = content.substr(0,content.indexOf('}')+ 1) //getting rid of anything after the first '}'. the first occurance of '}' would be the end of object
       var configPath = f.substr(0,f.lastIndexOf('/') - 1);
       configPath = configPath.substr(0,configPath.lastIndexOf('/')) + '/config.json';
-      console.log(configPath);
       fs.writeFile(configPath, content, function(err) {
         if(err) {
           return console.log(err);
@@ -337,12 +336,32 @@ function createConfig(f,config){
         console.log("config.json file was saved!");
       });
       var object = JSON.parse(content);
-      console.log(object);
+      return object
     }
   }
 }
 
+function findDuplicates(finalResult){
+  var duplicate = {};
+  finalResult[1].forEach(function(uno1,index1){//Checks the unos to see if they have identical ids
+    finalResult[1].forEach(function(uno2,index2){
+      if(uno1.id === uno2.id && index1 !== index2){
+        if(uno1.id in duplicate){
+          if(!duplicate[uno1.id].includes(uno2.title) ){//checks if the uno title is already in duplicate array
+            duplicate[uno1.id].push(uno2.title);
+          }
+        }else{
+          duplicate[uno1.id] = [uno1.title,uno2.title]
+        }
+      }
+    })
+  });
 
-module.exports =  {createExcel,createConfig}
+  if(Object.keys(duplicate).length !== 0){
+    console.log('ALERT: The following ids are repeated in unos with the mentioned titles',duplicate)
+  }
+}
+
+module.exports =  {createExcel,createConfig,findDuplicates}
 
 
