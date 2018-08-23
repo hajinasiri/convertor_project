@@ -103,7 +103,13 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   var outline = counter.map(a => a+1).map(String ).reduce((a, b) => a + '-' + b); //calculates outline number from counter variable
   excel.cell(row,3).string(target.Title);//sets the title column in excel
 
-  excel.cell(row,uno.indexOf('id') + 4).string(target.Title.replace(/ /g,''));//sets the id column in excel
+  // var strippedID = target.Title.replace(/ /g,'');//creating id from target title by stripping it from non-alphanumeric characters and space
+  // strippedID = strippedID.replace('-',"dashdashdashdash");
+  // strippedID = strippedID.replace(/\W/g, '');
+  // strippedID = strippedID.replace("dashdashdashdash", '-');
+  var strippedID = stripID(target.Title);
+
+  excel.cell(row,uno.indexOf('id') + 4).string(strippedID);//sets the id column in excel
   excel.cell(row,uno.indexOf('label') + 4).string(target.Title);//sets the label column in excel
   excel.cell(row,uno.indexOf('outlinenumber') + 4).string(outline);// sets the outline number in excel
   var outlineLevel;
@@ -135,8 +141,8 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   });
 
   excel.cell(row,uno.indexOf('classes') + 4).string(classes); //sets the value of classes column in excel as classes variable value
-  result[0][row - 2 ]= {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
-  result[1][row - 2 ] = {title:target.Title, id:target.Title.replace(/ /g,''), label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
+  result[0][row - 2 ]= {title:target.Title, id:strippedID, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
+  result[1][row - 2 ] = {title:target.Title, id:strippedID, label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
   getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
   getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
   var out = outline.substr(0,outline.lastIndexOf('-'));//calculating the parent's outline number
@@ -188,6 +194,8 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
           unofrom = childData.Value; // Then that value is stored in unofrom variable
         }else if(element === 'id'){ //Stroing the value for id in id varaiable
           id = childData.Value;
+          id = stripID(id);
+          excel.cell(row,index+ 4).string(id);//replaces the inserted id with the stripped id
         }else if(element === 'label'){
           label = childData.Value;
         }
@@ -362,6 +370,13 @@ function findDuplicates(finalResult){
   }
 }
 
+function stripID(id){//This function stripps id from all the Non-alphanumeric Characters except '-'
+   var strippedID = id.replace(/ /g,'');//creating id from target title by stripping it from non-alphanumeric characters and space
+  strippedID = strippedID.replace('-',"dashdashdashdash"); //replaces '-' to with  "dashdashdashdash" to keep it from being removed
+  strippedID = strippedID.replace(/\W/g, ''); //removes all the non-alphaneumeric characters
+  strippedID = strippedID.replace("dashdashdashdash", '-');//replaces "dashdashdashdash" back to '-'
+  return strippedID
+}
 module.exports =  {createExcel,createConfig,findDuplicates}
 
 
