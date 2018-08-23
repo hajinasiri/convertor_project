@@ -52,8 +52,6 @@ parseString(text, function (err, result) {//this line parses the text. the outpu
   modules.findDuplicates(finalResult);//check if there are duplicate ids
 });
 
-
-
 function buildXML (BinderMap,XML){
   var counter = [0];
   var target = BinderMap;

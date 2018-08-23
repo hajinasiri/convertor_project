@@ -195,6 +195,8 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
         }else if(element === 'id'){ //Stroing the value for id in id varaiable
           id = childData.Value;
           id = stripID(id);
+          result[0][row - 2][element] = id;//replace the id in result array from metaData with the stripped id
+          result[1][row - 2][element] = id;
           excel.cell(row,index+ 4).string(id);//replaces the inserted id with the stripped id
         }else if(element === 'label'){
           label = childData.Value;
@@ -375,8 +377,12 @@ function stripID(id){//This function stripps id from all the Non-alphanumeric Ch
   strippedID = strippedID.replace('-',"dashdashdashdash"); //replaces '-' to with  "dashdashdashdash" to keep it from being removed
   strippedID = strippedID.replace(/\W/g, ''); //removes all the non-alphaneumeric characters
   strippedID = strippedID.replace("dashdashdashdash", '-');//replaces "dashdashdashdash" back to '-'
+  while(parseInt(strippedID[0],10) || strippedID[0] === '-' || strippedID[0] === '0'){
+    strippedID = strippedID.substr(1,id.length);
+  }
+
   return strippedID
 }
-module.exports =  {createExcel,createConfig,findDuplicates}
+module.exports =  {createExcel,createConfig,findDuplicates,stripID}
 
 
