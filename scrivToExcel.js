@@ -48,24 +48,91 @@ parseString(text, function (err, result) {//this line parses the text. the outpu
   output.Binder = [XML];//sets the output.Binder to an array with XML inside
   var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
   modules.findDuplicates(finalResult);//check if there are duplicate ids
-  createStory(finalResult,f)
+  createStory(finalResult[1],f)
 });
 
 function createStory(finalResult,f){
-  var storyPath = f.substr(0,f.lastIndexOf('/') - 1);
-      storyPath = storyPath.substr(0,storyPath.lastIndexOf('/')) + '/story.html';
-  var text = '<div>Hello</div>';
-  fs.writeFile(storyPath, text, function(err) {
-        if(err) {
-          return console.log(err);
-        }
-        console.log("story.html file was saved!");
-      });
+  // story,html code and animation
+
+  var storyData = "";
+  var voaData = "{\r\r";
+  var voaIndex = 0;
+  var indexString;
+  var storyLink = "";
+  var i;
+
+  // Find the story and/or voa links: go through all the UNO's checking for a classes of 'story' or 'voa'
+
+  // Note that voa elements may also have a story link
+  finalResult.forEach(function(element,index){
+
+    // Find any voa's
+    if(element.classes.includes("voa") ){
+      if(voaIndex == 0){ // add the starting element
+          if( voaData.charAt(voaData.length - 1) == "}"){ // add the closing comma to the previous voa
+              voaData += ",\r\r";
+          }
+          voaData += "\"" + element.id + "\": {  \"elements\":  [\r";
+          voaIndex ++;
+      }
+      else {  // add a regular animation element
+          voaData += "{ \"type\": \"synchronous\", \"elements\": [ { \"type\":\"url\", \"content\":\"";
+          voaData += element.slideURL;
+          indexString = voaIndex;
+          if(indexString.toString().length === 1){ //checks if the indexString is just one digit
+            indexString = voaIndex.toString().padStart(2, '0');  // the MP3 file's index number must have 2 digits
+          }
+
+          voaData += "\" } , { \"type\":\"audio\", \"content\":\"audio/" + element.id + " " + indexString + ".mp3\" } ] }";
+
+          if(element.outlineLevel > finalResult[index + 1].outlineLevel){  // we've hit the last item of this animation
+              voaData += "\r] }";
+              voaIndex = 0;
+          }
+          else {  // more elements yet to add
+              voaData += ",\r";
+              voaIndex ++;
+          }
+      }
+    }
 
 
-  // finalResult.forEach(){
+    // Find any story links
+    if(element.classes.includes("story") ){
 
-  // }
+
+        // Do what Excel does.... adding things to storyLink
+        // storyLink += etc....
+
+
+        // don't forget the CR between links
+        storyLink += "\r";
+        // add the link to the story data
+        storyData += storyLink;
+        // Reset the story link
+        storyLink = "";
+    }
+  });
+
+  // Add the closing element to the json data
+  voaData += "\r\r}";
+
+  // Add the closing div to the story data
+  storyData += "\r</div>";
+
+  // Save the storyData to the story.html file
+
+
+  // Save the voaData to the animate.json file
+  var animatePath = f.substr(0,f.lastIndexOf('/') - 1);
+      animatePath = animatePath.substr(0,animatePath.lastIndexOf('/')) + '/animate.json';//Builds the path that animate.json will get written to
+  fs.writeFile(animatePath, voaData, function(err) {//writes the animate.json file
+    if(err) {
+      return console.log(err);
+    }
+    console.log("animate.json file was saved!");
+  });
+
 }
 
 function buildXML (BinderMap,XML){
