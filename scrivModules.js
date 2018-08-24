@@ -40,9 +40,13 @@ function initialize(excel,XML){ //initializes the MetaData columns inside excel 
 
   var uno =[];
 
-  XML.CustomMetaDataSettings.forEach(function(element){//This loop reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below
+  XML.CustomMetaDataSettings.forEach(function(element,index){//This loop reads uno titles and makes uno array. Because id is in hardCoded array above, it wouldn't be added to uno array here. These two arrays will be merged below
     if(element.Title !== 'id'){
+      if(element.Title === 'infopane'){//to make the p of infopane captial in excel file
+        uno.push('infoPane');
+      }else{
       uno.push(element.Title);
+    }
     }
   });
   uno = hardCoded.concat(uno);
@@ -386,15 +390,15 @@ function stripID(id){//This function stripps id from all the Non-alphanumeric Ch
 
 function fixupCustomFunctions(result,excel,uno) {
   var corrected;
-  result.forEach(function(resultElement,index1){
-    resultElement.forEach(function(element,index2){
+  result.forEach(function(resultElement,index1){//result array has two elements. first one without inheritance, second one with inheritance. the code needs to correct both
+    resultElement.forEach(function(element,index2){//each of the above arrays is an array of uno objects that code goes through
       var metas = ['onfunction', 'offfunction', 'openfunction', 'closefunction'];
-      metas.forEach(function(meta){
-        if(element[meta]){
-          if(element[meta].indexOf('=')>-1){
-            corrected = element[meta].replace('=','='+element.id+',');
-          }else{
-            corrected = element[meta].replace(',','='+element.id+',')
+      metas.forEach(function(meta){ //for each of the functions
+        if(element[meta]){//if the object has that function
+          if(element[meta].indexOf('=')>-1){//if the value for the function contains '=' sign
+            corrected = element[meta].replace('=','='+element.id+',');//the code replace '=' with '=id,'
+          }else{//if the value for the function does not contain '='
+            corrected = element[meta].replace(',','='+element.id+',')//this line replaces ',' with '=id,'
           }
           result[index1][index2][meta] = corrected;
           excel.cell(index2+2,uno.indexOf(meta) + 4).string(corrected);
