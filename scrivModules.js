@@ -345,8 +345,8 @@ function createConfig(f,config){
         }
         console.log("config.json file was saved!");
       });
-      var object = JSON.parse(content);
-      return object
+      var configObject = JSON.parse(content);
+      return configObject
     }
   }
 }

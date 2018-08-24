@@ -1,10 +1,8 @@
 var parseString = require('xml2js').parseString;
 var fs = require("fs");
-var modules = require('./modules');
-var prompt = require('prompt');
-
+var modules = require('./scrivModules');
 var f = process.argv[2];
-// var f = "/Users/shahab/lighthouse/scriv/render2.1/render0.2.scriv";
+// var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
 
 var n = f.lastIndexOf('/');
 var res = f.substr(n, f.length);
@@ -50,7 +48,25 @@ parseString(text, function (err, result) {//this line parses the text. the outpu
   output.Binder = [XML];//sets the output.Binder to an array with XML inside
   var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
   modules.findDuplicates(finalResult);//check if there are duplicate ids
+  createStory(finalResult,f)
 });
+
+function createStory(finalResult,f){
+  var storyPath = f.substr(0,f.lastIndexOf('/') - 1);
+      storyPath = storyPath.substr(0,storyPath.lastIndexOf('/')) + '/story.html';
+  var text = '<div>Hello</div>';
+  fs.writeFile(storyPath, text, function(err) {
+        if(err) {
+          return console.log(err);
+        }
+        console.log("story.html file was saved!");
+      });
+
+
+  // finalResult.forEach(){
+
+  // }
+}
 
 function buildXML (BinderMap,XML){
   var counter = [0];
