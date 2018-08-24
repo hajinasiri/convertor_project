@@ -141,8 +141,8 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   });
 
   excel.cell(row,uno.indexOf('classes') + 4).string(classes); //sets the value of classes column in excel as classes variable value
-  result[0][row - 2 ]= {title:target.Title, id:strippedID, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
-  result[1][row - 2 ] = {title:target.Title, id:strippedID, label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.Title,classes:classes }; //putting the calculated metadata as the object in result array
+  result[0][row - 2 ]= {title:target.Title, id:strippedID, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
+  result[1][row - 2 ] = {title:target.Title, id:strippedID, label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
   getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
   getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
   var out = outline.substr(0,outline.lastIndexOf('-'));//calculating the parent's outline number
@@ -152,12 +152,11 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
 
   var par= result[1].filter(element => element.outlineNumber === out)[0];//Get's the element with the outline number of parent and puts it in par variable
   if(counter[0] === -1){//if the target is Map, puts the object below as the parent
-    parent = {title: "Binder"};
+    parent = {title: "Binder", id:'Binder'};
   }else{//otherwise sets par as the parent
     parent = par
   }
-  // console.log('target:',target.Title,',parent:', parent.title);
-  excel.cell(row,uno.indexOf('parent') + 4).string(parent.title);//sets the parent column in excel
+  excel.cell(row,uno.indexOf('parent') + 4).string(parent.id);//sets the parent column in excel
   propagate(XML,excel,row, target,parent,uno,counter,result);
 }
 

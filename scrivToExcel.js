@@ -59,7 +59,6 @@ function createStory(finalResult,f){
   var voaIndex = 0;
   var indexString;
   var storyLink = "";
-  var i;
 
   // Find the story and/or voa links: go through all the UNO's checking for a classes of 'story' or 'voa'
 
@@ -69,37 +68,36 @@ function createStory(finalResult,f){
     // Find any voa's
     if(element.classes.includes("voa") ){
       if(voaIndex == 0){ // add the starting element
-          if( voaData.charAt(voaData.length - 1) == "}"){ // add the closing comma to the previous voa
-              voaData += ",\r\r";
-          }
-          voaData += "\"" + element.id + "\": {  \"elements\":  [\r";
-          voaIndex ++;
+        if( voaData.charAt(voaData.length - 1) == "}"){ // add the closing comma to the previous voa
+            voaData += ",\r\r";
+        }
+        voaData += "\"" + element.id + "\": {  \"elements\":  [\r";
+        voaIndex ++;
       }
       else {  // add a regular animation element
-          voaData += "{ \"type\": \"synchronous\", \"elements\": [ { \"type\":\"url\", \"content\":\"";
-          voaData += element.slideURL;
-          indexString = voaIndex;
-          if(indexString.toString().length === 1){ //checks if the indexString is just one digit
-            indexString = voaIndex.toString().padStart(2, '0');  // the MP3 file's index number must have 2 digits
-          }
+        voaData += "{ \"type\": \"synchronous\", \"elements\": [ { \"type\":\"url\", \"content\":\"";
+        voaData += element.slideURL;
+        indexString = voaIndex;
+        if(indexString.toString().length === 1){ //checks if the indexString is just one digit
+          indexString = voaIndex.toString().padStart(2, '0');  // the MP3 file's index number must have 2 digits
+        }
 
-          voaData += "\" } , { \"type\":\"audio\", \"content\":\"audio/" + element.id + " " + indexString + ".mp3\" } ] }";
+        voaData += "\" } , { \"type\":\"audio\", \"content\":\"audio/" + element.id + " " + indexString + ".mp3\" } ] }";
 
-          if(element.outlineLevel > finalResult[index + 1].outlineLevel){  // we've hit the last item of this animation
-              voaData += "\r] }";
-              voaIndex = 0;
-          }
-          else {  // more elements yet to add
-              voaData += ",\r";
-              voaIndex ++;
-          }
+        if(element.outlineLevel > finalResult[index + 1].outlineLevel){  // we've hit the last item of this animation
+          voaData += "\r] }";
+          voaIndex = 0;
+        }
+        else {  // more elements yet to add
+          voaData += ",\r";
+          voaIndex ++;
+        }
       }
     }
 
 
     // Find any story links
     if(element.classes.includes("story") ){
-
 
         // Do what Excel does.... adding things to storyLink
         // storyLink += etc....
