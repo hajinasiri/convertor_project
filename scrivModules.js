@@ -25,6 +25,7 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
     }
 
   })
+  fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
   var path = files.substr(0,files.lastIndexOf('.scriv'))//Getting rid of the scrivx file in the path
   path = path.substr(0,path.lastIndexOf('.scriv'))+ '.xlsx';//building address for excel file
   workbook.write(path);; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
@@ -141,8 +142,8 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   });
 
   excel.cell(row,uno.indexOf('classes') + 4).string(classes); //sets the value of classes column in excel as classes variable value
-  result[0][row - 2 ]= {title:target.Title, id:strippedID, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
-  result[1][row - 2 ] = {title:target.Title, id:strippedID, label:target.Title, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
+  result[0][row - 2 ] = {title:target.Title, id:strippedID, label:target.id, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
+  result[1][row - 2 ] = {title:target.Title, id:strippedID, label:target.id, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
   getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
   getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
   var out = outline.substr(0,outline.lastIndexOf('-'));//calculating the parent's outline number
@@ -381,6 +382,27 @@ function stripID(id){//This function stripps id from all the Non-alphanumeric Ch
   }
 
   return strippedID
+}
+
+function fixupCustomFunctions(result,excel,uno) {
+  var corrected;
+  result.forEach(function(resultElement,index1){
+    resultElement.forEach(function(element,index2){
+      var metas = ['onfunction', 'offfunction', 'openfunction', 'closefunction'];
+      metas.forEach(function(meta){
+        if(element[meta]){
+          if(element[meta].indexOf('=')>-1){
+            corrected = element[meta].replace('=','='+element.id+',');
+          }else{
+            corrected = element[meta].replace(',','='+element.id+',')
+          }
+          result[index1][index2][meta] = corrected;
+          excel.cell(index2+2,uno.indexOf(meta) + 4).string(corrected);
+        }
+      })
+    });
+  });
+
 }
 module.exports =  {createExcel,createConfig,findDuplicates,stripID}
 
