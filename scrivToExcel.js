@@ -48,7 +48,8 @@ parseString(text, function (err, result) {//this line parses the text. the outpu
   output.Binder = [XML];//sets the output.Binder to an array with XML inside
   var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
   modules.findDuplicates(finalResult);//check if there are duplicate ids
-  createStory(finalResult[1],f)
+  createStory(finalResult[1],f);
+
 });
 
 function createStory(finalResult,f){
@@ -76,7 +77,9 @@ function createStory(finalResult,f){
       }
       else {  // add a regular animation element
         voaData += "{ \"type\": \"synchronous\", \"elements\": [ { \"type\":\"url\", \"content\":\"";
-        voaData += element.slideURL;
+        if(element.slideurl){//Checks if the element has slideurl, then adds it to voaData
+          voaData += element.slideurl;
+        }
         indexString = voaIndex;
         if(indexString.toString().length === 1){ //checks if the indexString is just one digit
           indexString = voaIndex.toString().padStart(2, '0');  // the MP3 file's index number must have 2 digits
@@ -84,7 +87,7 @@ function createStory(finalResult,f){
 
         voaData += "\" } , { \"type\":\"audio\", \"content\":\"audio/" + element.id + " " + indexString + ".mp3\" } ] }";
 
-        if(element.outlineLevel > finalResult[index + 1].outlineLevel){  // we've hit the last item of this animation
+        if(element.outlinelevel > finalResult[index + 1].outlinelevel){  // we've hit the last item of this animation
           voaData += "\r] }";
           voaIndex = 0;
         }

@@ -108,10 +108,6 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   var outline = counter.map(a => a+1).map(String ).reduce((a, b) => a + '-' + b); //calculates outline number from counter variable
   excel.cell(row,3).string(target.Title);//sets the title column in excel
 
-  // var strippedID = target.Title.replace(/ /g,'');//creating id from target title by stripping it from non-alphanumeric characters and space
-  // strippedID = strippedID.replace('-',"dashdashdashdash");
-  // strippedID = strippedID.replace(/\W/g, '');
-  // strippedID = strippedID.replace("dashdashdashdash", '-');
   var strippedID = stripID(target.Title);
 
   excel.cell(row,uno.indexOf('id') + 4).string(strippedID);//sets the id column in excel
@@ -146,8 +142,8 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   });
 
   excel.cell(row,uno.indexOf('classes') + 4).string(classes); //sets the value of classes column in excel as classes variable value
-  result[0][row - 2 ] = {title:target.Title, id:strippedID, label:target.id, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
-  result[1][row - 2 ] = {title:target.Title, id:strippedID, label:target.id, outlineNumber:outline, outlineLevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
+  result[0][row - 2 ] = {title:target.Title, id:strippedID, label:target.id, outlinenumber:outline, outlinelevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
+  result[1][row - 2 ] = {title:target.Title, id:strippedID, label:target.id, outlinenumber:outline, outlinelevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
   getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
   getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
   var out = outline.substr(0,outline.lastIndexOf('-'));//calculating the parent's outline number
@@ -155,13 +151,15 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
     out = '0';
   }
 
-  var par= result[1].filter(element => element.outlineNumber === out)[0];//Get's the element with the outline number of parent and puts it in par variable
+  var par= result[1].filter(element => element.outlinenumber === out)[0];//Get's the element with the outline number of parent and puts it in par variable
   if(counter[0] === -1){//if the target is Map, puts the object below as the parent
     parent = {title: "Binder", id:'Binder'};
   }else{//otherwise sets par as the parent
     parent = par
   }
   excel.cell(row,uno.indexOf('parent') + 4).string(parent.id);//sets the parent column in excel
+  result[0][row -2].parent = parent.id;
+  result[1][row -2].parent = parent.id;
   propagate(XML,excel,row, target,parent,uno,counter,result);
 }
 
@@ -409,5 +407,3 @@ function fixupCustomFunctions(result,excel,uno) {
 
 }
 module.exports =  {createExcel,createConfig,findDuplicates,stripID}
-
-
