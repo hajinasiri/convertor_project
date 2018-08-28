@@ -165,17 +165,25 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
 
 }
 
-function fixShort(result,row,excel,uno){//for each uno puts longdescription text inside shortdescription if there is no shortdescription and tooltip = 1
-  //if short description is empty sets tooltip to '0'
-  //if long description is empty sets infoPane to 'none'
+function fixShort(result,row,excel,uno){
+
+
   var element = result[1][row-2];
-  if(!element.shortdescription && element.tooltip == '1' && element.longdescription){
+  if(!element.longdescription){ //if long description is empty sets infoPane to 'none'
+    excel.cell(row,uno.indexOf('infopane') + 4).string('none');
+    result[1][row-2].infopane = 'none';
+    result[0][row-2].infopane = 'none';
+  }else if(!element.shortdescription && element.tooltip == '1'){//for each uno puts longdescription text inside shortdescription if there is no shortdescription and tooltip = 1
     excel.cell(row,uno.indexOf('shortdescription') + 4).string(element.longdescription);
     result[1][row-2].shortdescription = element.longdescription;
     result[0][row-2].shortdescription = element.longdescription;
   };
-
-
+  element = result[1][row-2];
+  if(!element.shortdescription){//if short description is empty sets tooltip to '0'
+    excel.cell(row,uno.indexOf('tooltip') + 4).string('0');
+    result[1][row-2].tooltip = '0';
+    result[0][row-2].tooltip = '0';
+  }
 }
 
 function propagate(XML,excel,row, target,parent,uno,counter,result){
