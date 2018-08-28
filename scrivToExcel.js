@@ -2,7 +2,7 @@ var parseString = require('xml2js').parseString;
 var fs = require("fs");
 var modules = require('./scrivModules');
 var f = process.argv[2];
-// var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
+// var f = "/Users/shahab/lighthouse/scriv/render3/GenderFinance4.7test.scriv";
 
 var n = f.lastIndexOf('/');
 var res = f.substr(n, f.length);
@@ -60,7 +60,8 @@ function createStory(finalResult,f){
   var voaIndex = 0;
   var indexString;
   var storyLink = "";
-
+  var hasChildren;
+  var div;
   // Find the story and/or voa links: go through all the UNO's checking for a classes of 'story' or 'voa'
 
   // Note that voa elements may also have a story link
@@ -98,30 +99,70 @@ function createStory(finalResult,f){
       }
     }
 
+    // Add the closing element to the json data
+    voaData += "\r\r}";
 
     // Find any story links
     if(element.classes.includes("story") ){
 
-        // Do what Excel does.... adding things to storyLink
-        // storyLink += etc....
+      hasChildren = false;
+      finalResult.forEach(function(children){//checks if any of the unos are children of the current element, then sets hasChildren as true
+        if(children.parent === element.id){
+          hasChildren = true;
+        }
+      });
 
+      if(hasChildren){
+        storyData += "<h"+element.outlinelevel+" class='storyHead storyHead"+element.outlinelevel.toString().padStart(2, '0')+
+        "'> <button aria-expanded='false'><i class='icon-right-dir'></i><i class='icon-down-dir'></i>"+element.title+"</row></button></h"+
+        element.outlinelevel+"><div hidden>"
+      }else{
+        storyData += '<a href='+"'"+"#/?"+(element.slideurl? element.slideurl:"");
+        if(element.classes.includes('fileInfo') || element.classes.includes('formInfo')){
+          storyData += element.classes;
+        }else if (!element.slidurl){
+          storyData += "+++&unoInfo=" + element.id;
+        }else{
+          storyData += "&unoInfo=" + element.id;
+        }
+        storyData += "' id='storyLink" + element.id + "'   class='slide storyItem"+
+        (hasChildren? finalResult[index + 1].outlinelevel : element.outlinelevel).toString().padStart(2, '0') +
+        "' >" + element.label + "</a><br>";
+      }
 
-        // don't forget the CR between links
-        storyLink += "\r";
-        // add the link to the story data
-        storyData += storyLink;
-        // Reset the story link
-        storyLink = "";
+      if(finalResult[index+1]){
+        div = '';
+        for(i=0; i < element.outlinelevel - finalResult[index+1].outlinelevel; i++){
+          div = div + '</div>'
+        }
+      }else{
+        for(i=1; i < element.outlinelevel; i++){
+          div = div + '</div>'
+        }
+      }
+      storyData += div;
+
+      // don't forget the CR between links
+      storyLink += "\r";
+      storyData += storyLink;
+
+      // add the link to the story data
+      // storyData += storyLink;
+      // Reset the story link
+      storyLink = "";
+
     }
   });
 
-  // Add the closing element to the json data
-  voaData += "\r\r}";
+  var storyPath = f.substr(0,f.lastIndexOf('/') - 1);
+  storyPath = storyPath.substr(0,storyPath.lastIndexOf('/')) + '/story.html';//Builds the path that animate.json will get written to
+  fs.writeFile(storyPath, storyData, function(err) {//writes the animate.json file
+    if(err) {
+      return console.log(err);
+    }
+    console.log("story.html file was saved!");
+  });
 
-  // Add the closing div to the story data
-  storyData += "\r</div>";
-
-  // Save the storyData to the story.html file
 
 
   // Save the voaData to the animate.json file
