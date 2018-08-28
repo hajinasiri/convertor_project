@@ -161,13 +161,27 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   result[0][row -2].parent = parent.id;
   result[1][row -2].parent = parent.id;
   propagate(XML,excel,row, target,parent,uno,counter,result);
+  fixShort(result,row,excel,uno);
+
 }
 
+function fixShort(result,row,excel,uno){//for each uno puts longdescription text inside shortdescription if there is no shortdescription and tooltip = 1
+  //if short description is empty sets tooltip to '0'
+  //if long description is empty sets infoPane to 'none'
+  var element = result[1][row-2];
+  if(!element.shortdescription && element.tooltip == '1' && element.longdescription){
+    excel.cell(row,uno.indexOf('shortdescription') + 4).string(element.longdescription);
+    result[1][row-2].shortdescription = element.longdescription;
+    result[0][row-2].shortdescription = element.longdescription;
+  };
+
+
+}
 
 function propagate(XML,excel,row, target,parent,uno,counter,result){
 
   if(target.MetaData && target.MetaData.CustomMetaData){
-    var CustomMetaData = target.MetaData.CustomMetaData; //get the CustomMetaData from the child
+    var CustomMetaData = target.MetaData.CustomMetaData; //get the CustomMetaData from the target
   }else{
     var CustomMetaData = [];
   }

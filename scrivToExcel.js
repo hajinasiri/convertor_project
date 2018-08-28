@@ -66,7 +66,7 @@ function createStory(finalResult,f){
 
   // Note that voa elements may also have a story link
   finalResult.forEach(function(element,index){
-
+    // console.log(element.shortdescription);
     // Find any voa's
     if(element.classes.includes("voa") ){
       if(voaIndex == 0){ // add the starting element
