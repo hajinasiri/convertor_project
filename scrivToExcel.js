@@ -1,56 +1,76 @@
 var parseString = require('xml2js').parseString;
 var fs = require("fs");
 var modules = require('./scrivModules');
-var f = process.argv[2];
+
+require('log-timestamp');
 // var f = "/Users/shahab/lighthouse/scriv/render3/GenderFinance4.7test.scriv";
 
-var n = f.lastIndexOf('/');
-var res = f.substr(n, f.length);
-f = f + '/' +res+'x';
-var text = fs.readFileSync(f).toString('utf-8');
-
-  // var resultt =[[],[]];
-
-parseString(text, function (err, result) {//this line parses the text. the output is text. Then the desirable XML format will be built from this output
-  var settings = result.ScrivenerProject.CustomMetaDataSettings[0].MetaDataField;//getting the metaDataSettings from the parsed text
-
-  settings = settings.map(a => {//This creates a desirable format of settings and puts it inside the settings
-    var obj =a.$;
-    obj.Title = a.Title[0];
-    return obj
-  });
-  var output = {};
-  output.CustomMetaDataSettings = settings;//output is the variable holding the desirable XML format. This line adds the settings to it
+var f = process.argv[2];//reads the file address from user input in terminal
 
 
-  var Keywords = result.ScrivenerProject.Keywords[0].Keyword;//reads the Kewords from text
-  Keywords = Keywords.map(a => {//makes the format desirable
-    return {ID:a.$.ID,Title:a.Title[0],Color:a.Color[0]}
-  })
-  output.Keywords = Keywords;//adds the desirable format of keywords to the output
 
+// const buttonPressesLogFile = '/Users/shahab/lighthouse/scriv/render3/test.json';
 
-  var Binder = result.ScrivenerProject.Binder[0].BinderItem;//putts the Binder inside Binder Variable
+console.log(`Watching for file changes on ${f}`);
 
-  var MapArray;
-  var config;
-  Binder.forEach(function(element){//Finds the map inside Binder
-    if(element.Title[0] === 'Map'){
-      MapArray = element;
-    }else if(element.Title[0] === 'config.json'){//finds config and pust it in config variable
-      config = element;
-    }
-  });
-  var configObject = modules.createConfig(f,config);//creates the confing.json file
-  var XML = {}
-  XML = addToXML(MapArray,[],XML);//adds map object to the final xml
-  buildXML(MapArray,XML);//builds the desirable xml format from MapArray
-  output.Binder = [XML];//sets the output.Binder to an array with XML inside
-  var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
-  modules.findDuplicates(finalResult);//check if there are duplicate ids
-  createStory(finalResult[1],f);
-
+fs.watchFile(f, (curr, prev) => {
+  console.log(`${f} file Changed`);
+  main(f);
 });
+
+main(f);
+
+
+
+function main(f) {
+  var n = f.lastIndexOf('/');
+  var res = f.substr(n, f.length);
+  f = f + '/' +res+'x';
+  var text = fs.readFileSync(f).toString('utf-8');
+
+    // var resultt =[[],[]];
+
+  parseString(text, function (err, result) {//this line parses the text. the output is text. Then the desirable XML format will be built from this output
+    var settings = result.ScrivenerProject.CustomMetaDataSettings[0].MetaDataField;//getting the metaDataSettings from the parsed text
+
+    settings = settings.map(a => {//This creates a desirable format of settings and puts it inside the settings
+      var obj =a.$;
+      obj.Title = a.Title[0];
+      return obj
+    });
+    var output = {};
+    output.CustomMetaDataSettings = settings;//output is the variable holding the desirable XML format. This line adds the settings to it
+
+
+    var Keywords = result.ScrivenerProject.Keywords[0].Keyword;//reads the Kewords from text
+    Keywords = Keywords.map(a => {//makes the format desirable
+      return {ID:a.$.ID,Title:a.Title[0],Color:a.Color[0]}
+    })
+    output.Keywords = Keywords;//adds the desirable format of keywords to the output
+
+
+    var Binder = result.ScrivenerProject.Binder[0].BinderItem;//putts the Binder inside Binder Variable
+
+    var MapArray;
+    var config;
+    Binder.forEach(function(element){//Finds the map inside Binder
+      if(element.Title[0] === 'Map'){
+        MapArray = element;
+      }else if(element.Title[0] === 'config.json'){//finds config and pust it in config variable
+        config = element;
+      }
+    });
+    var configObject = modules.createConfig(f,config);//creates the confing.json file
+    var XML = {}
+    XML = addToXML(MapArray,[],XML);//adds map object to the final xml
+    buildXML(MapArray,XML);//builds the desirable xml format from MapArray
+    output.Binder = [XML];//sets the output.Binder to an array with XML inside
+    var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
+    modules.findDuplicates(finalResult);//check if there are duplicate ids
+    createStory(finalResult[1],f);
+
+  });
+}
 
 function createStory(finalResult,f){
   // story,html code and animation
@@ -99,10 +119,10 @@ function createStory(finalResult,f){
       }
     }
 
-    // Add the closing element to the json data
-    voaData += "\r\r}";
+    // Adds the closing element to the json data
 
-    // Find any story links
+
+    // Finds any story links
     if(element.classes.includes("story") ){
 
       hasChildren = false;
@@ -129,6 +149,7 @@ function createStory(finalResult,f){
         (hasChildren? finalResult[index + 1].outlinelevel : element.outlinelevel).toString().padStart(2, '0') +
         "' >" + element.label + "</a><br>";
       }
+      //Below creates an string of divs that are needed after each uno's html
 
       if(finalResult[index+1]){
         div = '';
@@ -142,13 +163,9 @@ function createStory(finalResult,f){
       }
       storyData += div;
 
-      // don't forget the CR between links
+      // adding the CR between links
       storyLink += "\r";
       storyData += storyLink;
-
-      // add the link to the story data
-      // storyData += storyLink;
-      // Reset the story link
       storyLink = "";
 
     }
@@ -164,7 +181,7 @@ function createStory(finalResult,f){
   });
 
 
-
+  voaData += "\r\r}";
   // Save the voaData to the animate.json file
   var animatePath = f.substr(0,f.lastIndexOf('/') - 1);
       animatePath = animatePath.substr(0,animatePath.lastIndexOf('/')) + '/animate.json';//Builds the path that animate.json will get written to
