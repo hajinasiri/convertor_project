@@ -10,6 +10,7 @@ var f = process.argv[2];//reads the file address from user input in terminal
 
 
 // const buttonPressesLogFile = '/Users/shahab/lighthouse/scriv/render3/test.json';
+main(f);
 
 console.log(`Watching for file changes on ${f}`);
 
@@ -18,7 +19,7 @@ fs.watchFile(f, (curr, prev) => {
   main(f);
 });
 
-main(f);
+
 
 
 
@@ -28,7 +29,6 @@ function main(f) {
   f = f + '/' +res+'x';
   var text = fs.readFileSync(f).toString('utf-8');
 
-    // var resultt =[[],[]];
 
   parseString(text, function (err, result) {//this line parses the text. the output is text. Then the desirable XML format will be built from this output
     var settings = result.ScrivenerProject.CustomMetaDataSettings[0].MetaDataField;//getting the metaDataSettings from the parsed text
@@ -66,7 +66,7 @@ function main(f) {
     buildXML(MapArray,XML);//builds the desirable xml format from MapArray
     output.Binder = [XML];//sets the output.Binder to an array with XML inside
     var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
-    modules.findDuplicates(finalResult);//check if there are duplicate ids
+    modules.findDuplicates(finalResult);//checks if there are duplicate ids and prints out a warning if there are any
     createStory(finalResult[1],f);
 
   });
@@ -217,8 +217,6 @@ function buildXML (BinderMap,XML){
     }
 
     if(validation){//If the validation is true and there is a child in the address, addElement is used to add the data to the excel file
-      // console.log(target.Title);
-      // console.log(counter);
       addToXML(target,counter,XML);
 
       if(target.Children && target.Children[0].BinderItem){ //if the target has children sets the counter to the first of them
@@ -228,7 +226,6 @@ function buildXML (BinderMap,XML){
       }
 
     }else{ //if there is not a child at the addressed obtained from the counter, sets counter to one generation back and the next sibling in that generation
-      // console.log('validation flase')
       counter.splice(-1,1);
       counter[counter.length-1] +=1
     }

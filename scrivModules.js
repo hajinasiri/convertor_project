@@ -23,20 +23,30 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
     if(element.Children){ //if there is children in Map, uses singleElement function to go through all the children inside map and gets the last row number from that function
       row = singleElement(XML,element,index,excel,row,files,uno,result);
     }
-
   })
   fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
   var path = files.substr(0,files.lastIndexOf('.scriv'))//Getting rid of the scrivx file in the path
   path = path.substr(0,path.lastIndexOf('.scriv'))+ '.xlsx';//building address for excel file
   workbook.write(path);; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
+
+  result[1].forEach(function(resultElement,resultIndex){
+    uno.forEach(function(unoElement,unoIndex){
+
+      if(typeof(resultElement[unoElement]) === 'number'){
+        excel.cell(resultIndex+2,unoIndex+1).number(resultElement[unoElement]);
+      }else if(typeof(resultElement[unoElement]) === 'string'){
+        excel.cell(resultIndex+2,unoIndex+1).string(resultElement[unoElement]);
+      }
+    })
+  })
+
   return result
 }
 
 
 function initialize(excel,XML){ //initializes the MetaData columns inside excel file
-  excel.cell(1,3).string('Title');
 
-  var hardCoded = ['id','parent','outlineNumber','outlineLevel','label', 'shortDescription', 'longDescription','classes'];
+  var hardCoded = ['label','id','parent','outlineNumber','outlineLevel', 'shortDescription', 'longDescription','classes'];
 
   var uno =[];
 
@@ -51,7 +61,7 @@ function initialize(excel,XML){ //initializes the MetaData columns inside excel 
   });
   uno = hardCoded.concat(uno);
   uno.forEach(function(element,index){//This loop puts all the uno metaData Titles from uno array into the excel file
-    excel.cell(1,4+index).string(element);
+    excel.cell(1,1+index).string(element);
   });
   uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
   return uno;
@@ -106,7 +116,7 @@ function singleElement(XML,element,index,excel,row,files,uno,result){
 
 function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   var outline = counter.map(a => a+1).map(String ).reduce((a, b) => a + '-' + b); //calculates outline number from counter variable
-  excel.cell(row,3).string(target.Title);//sets the title column in excel
+  // excel.cell(row,3).string(target.Title);//sets the title column in excel
 
   var strippedID = stripID(target.Title);
 
@@ -142,8 +152,8 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   });
 
   excel.cell(row,uno.indexOf('classes') + 4).string(classes); //sets the value of classes column in excel as classes variable value
-  result[0][row - 2 ] = {title:target.Title, id:strippedID, label:target.id, outlinenumber:outline, outlinelevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
-  result[1][row - 2 ] = {title:target.Title, id:strippedID, label:target.id, outlinenumber:outline, outlinelevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
+  result[0][row - 2 ] = {title:target.Title, id:strippedID, label:target.Title, outlinenumber:outline, outlinelevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
+  result[1][row - 2 ] = {title:target.Title, id:strippedID, label:target.Title, outlinenumber:outline, outlinelevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
   getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
   getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
   var out = outline.substr(0,outline.lastIndexOf('-'));//calculating the parent's outline number
@@ -241,13 +251,6 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
       result[0][row - 2].id = id; //and then put that value for id in result array
       result[1][row - 2].id = id;
     }
-
-    if(!label && id){
-      excel.cell(row,uno.indexOf('label') + 4).string(id);
-      result[0][row - 2].label = id; //and then put that value for id in result array
-      result[1][row - 2].label = id;
-    }
-
     //making the object of inheritable properties
     const inheritable = {'classes':'',hoveraction:'',hoverfunction:'',clickaction:'',clickfunction:'',ondoubleclick:'',tooltip:'',infopane:'',onfunction:'',
       offfunction:'',openfunction:'',closefunction:'',ttstyle:'',render:'',symbol:'',location:'',xpos:'',ypos:'',xscale:'',yscale:'',xoffset:'',
@@ -284,9 +287,7 @@ function getText(files,excel,target,row,column,result){
     if (fs.existsSync(path)) {//if the content.rtf exests
 
       var text = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
-      // if(target.title.indexOf('Image ') > -1){
-      //   console.log(rawText);
-      // }
+
 
       const begin = text.indexOf('fs20') + 'fs20'.length;
       const end = text.indexOf('fs24 <') - 1;
