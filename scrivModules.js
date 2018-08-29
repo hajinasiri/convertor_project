@@ -17,21 +17,18 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
   const uno = initialize(excel,XML);//uses initialize function to add all uno elements to the excel file. in rturn gets uno array and puts it in uno variable
   var row = 2;
   Binder.forEach(function(element,index){ //this forEach is here to go through all the elements in Binder if needed. But currently there is only map in Binder variable
-    addElement(XML,element,files,[-1],row,excel,uno,{Title:'Binder'},result); //This line adds all the data of Map to excel file
+    addElement(XML,element,files,[-1],row,uno,{Title:'Binder'},result); //This line adds all the data of Map to excel file
     row += 1; //Then sets row number to the next row number
 
     if(element.Children){ //if there is children in Map, uses singleElement function to go through all the children inside map and gets the last row number from that function
-      row = singleElement(XML,element,index,excel,row,files,uno,result);
+      row = singleElement(XML,element,index,row,files,uno,result);
     }
   })
-  fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
-  var path = files.substr(0,files.lastIndexOf('.scriv'))//Getting rid of the scrivx file in the path
-  path = path.substr(0,path.lastIndexOf('.scriv'))+ '.xlsx';//building address for excel file
-  workbook.write(path);; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
 
+
+//this part creates the excel part from second element of result array which is after inheritance
   result[1].forEach(function(resultElement,resultIndex){
     uno.forEach(function(unoElement,unoIndex){
-
       if(typeof(resultElement[unoElement]) === 'number'){
         excel.cell(resultIndex+2,unoIndex+1).number(resultElement[unoElement]);
       }else if(typeof(resultElement[unoElement]) === 'string'){
@@ -39,7 +36,10 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
       }
     })
   })
-
+  fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
+  var path = files.substr(0,files.lastIndexOf('.scriv'))//Getting rid of the scrivx file in the path
+  path = path.substr(0,path.lastIndexOf('.scriv'))+ '.xlsx';//building address for excel file
+  workbook.write(path);; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
   return result
 }
 
@@ -67,7 +67,7 @@ function initialize(excel,XML){ //initializes the MetaData columns inside excel 
   return uno;
 }
 
-function singleElement(XML,element,index,excel,row,files,uno,result){
+function singleElement(XML,element,index,row,files,uno,result){
   var counter =[0];//counter is the address to the current target that the code looks at. The code updates counter and then uses it to get the child
   //each element position in the array reperesent the number of generation of the target, and the value reperesents the number of the child in its generation.
   var finish = false; //finish variable changes to true when all the childs have been looked at and their data has been extracted. When finish is true the loop stops
@@ -93,7 +93,7 @@ function singleElement(XML,element,index,excel,row,files,uno,result){
 
 
     if(validation){//If the validation is true and there is a child in the address, addElement is used to add the data to the excel file
-      addElement(XML,target,files,counter,row,excel,uno,parent,result);
+      addElement(XML,target,files,counter,row,uno,parent,result);
        row += 1; //goes to the next row in excel
       if(target.Children){ //if the target has children sets the counter to the first of them
         counter.push(0);
@@ -114,21 +114,16 @@ function singleElement(XML,element,index,excel,row,files,uno,result){
   return row;
 }
 
-function addElement(XML,target,files,counter,row,excel,uno,parent,result){
+function addElement(XML,target,files,counter,row,uno,parent,result){
   var outline = counter.map(a => a+1).map(String ).reduce((a, b) => a + '-' + b); //calculates outline number from counter variable
   // excel.cell(row,3).string(target.Title);//sets the title column in excel
 
   var strippedID = stripID(target.Title);
 
-  excel.cell(row,uno.indexOf('id') + 4).string(strippedID);//sets the id column in excel
-  excel.cell(row,uno.indexOf('label') + 4).string(target.Title);//sets the label column in excel
-  excel.cell(row,uno.indexOf('outlinenumber') + 4).string(outline);// sets the outline number in excel
   var outlineLevel;
   if(counter[0] === -1){//sets the outlinelevel column
-    excel.cell(row,uno.indexOf('outlinelevel') + 4).number(0);//sets 0 for map
     outlineLevel = 0;
   }else{
-    excel.cell(row,uno.indexOf('outlinelevel') + 4).number(counter.length);//calculates and sets outlinelevel for things other than map
     outlineLevel = counter.length;
   }
 
@@ -151,11 +146,11 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
     })
   });
 
-  excel.cell(row,uno.indexOf('classes') + 4).string(classes); //sets the value of classes column in excel as classes variable value
+
   result[0][row - 2 ] = {title:target.Title, id:strippedID, label:target.Title, outlinenumber:outline, outlinelevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
   result[1][row - 2 ] = {title:target.Title, id:strippedID, label:target.Title, outlinenumber:outline, outlinelevel:outlineLevel, parent:parent.id,classes:classes }; //putting the calculated metadata as the object in result array
-  getShort(files,excel,target,row,uno.indexOf('shortdescription') + 4,result);
-  getText(files,excel,target,row,uno.indexOf('longdescription') + 4,result);
+  getShort(files,target,row,uno.indexOf('shortdescription') + 4,result);
+  getText(files,target,row,uno.indexOf('longdescription') + 4,result);
   var out = outline.substr(0,outline.lastIndexOf('-'));//calculating the parent's outline number
   if(counter.length === 1){//if the target is first child, sets the outlinenumber to 0 which is Map's outline number
     out = '0';
@@ -167,36 +162,33 @@ function addElement(XML,target,files,counter,row,excel,uno,parent,result){
   }else{//otherwise sets par as the parent
     parent = par
   }
-  excel.cell(row,uno.indexOf('parent') + 4).string(parent.id);//sets the parent column in excel
+
   result[0][row -2].parent = parent.id;
   result[1][row -2].parent = parent.id;
-  propagate(XML,excel,row, target,parent,uno,counter,result);
-  fixShort(result,row,excel,uno);
+  propagate(XML,row, target,parent,uno,counter,result);
+  fixShort(result,row,uno);
 
 }
 
-function fixShort(result,row,excel,uno){
+function fixShort(result,row,uno){
 
 
   var element = result[1][row-2];
   if(!element.longdescription){ //if long description is empty sets infoPane to 'none'
-    excel.cell(row,uno.indexOf('infopane') + 4).string('none');
     result[1][row-2].infopane = 'none';
     result[0][row-2].infopane = 'none';
   }else if(!element.shortdescription && element.tooltip == '1'){//for each uno puts longdescription text inside shortdescription if there is no shortdescription and tooltip = 1
-    excel.cell(row,uno.indexOf('shortdescription') + 4).string(element.longdescription);
     result[1][row-2].shortdescription = element.longdescription;
     result[0][row-2].shortdescription = element.longdescription;
   };
   element = result[1][row-2];
   if(!element.shortdescription){//if short description is empty sets tooltip to '0'
-    excel.cell(row,uno.indexOf('tooltip') + 4).string('0');
     result[1][row-2].tooltip = '0';
     result[0][row-2].tooltip = '0';
   }
 }
 
-function propagate(XML,excel,row, target,parent,uno,counter,result){
+function propagate(XML,row, target,parent,uno,counter,result){
 
   if(target.MetaData && target.MetaData.CustomMetaData){
     var CustomMetaData = target.MetaData.CustomMetaData; //get the CustomMetaData from the target
@@ -220,8 +212,6 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
       if( childData.FieldID === element){
         result[0][row - 2][element] = childData.Value;//putting all the properties of the uno inside the result arrays insid the row-2 element which is an array itself and inside it's first elemant
         result[1][row - 2][element] = childData.Value;
-
-        excel.cell(row,index+ 4).string(childData.Value);
         if(element === 'unoto'){//To check if the child has a value for unoto
           unoto = childData.Value; //Then that value is stored in unoto variable
         }else if(element === 'unofrom'){//To check if the child has a vlue for unofrom
@@ -231,7 +221,6 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
           id = stripID(id);
           result[0][row - 2][element] = id;//replace the id in result array from metaData with the stripped id
           result[1][row - 2][element] = id;
-          excel.cell(row,index+ 4).string(id);//replaces the inserted id with the stripped id
         }else if(element === 'label'){
           label = childData.Value;
         }
@@ -246,8 +235,6 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
     };
 
     if(unoto && !unofrom && id){
-
-      excel.cell(row,uno.indexOf('unofrom') + 4).string(id); // if there is value for unoto, but no value for unofrom then the excel column value for unofrom is set as the value of id
       result[0][row - 2].id = id; //and then put that value for id in result array
       result[1][row - 2].id = id;
     }
@@ -259,27 +246,25 @@ function propagate(XML,excel,row, target,parent,uno,counter,result){
 
     if(!found && element in inheritable){//if the child didn't have any value for the MetaData and the property is among the inheritables
       if(element in parent){//checking if the parent has the MetaData
-        excel.cell(row,4+index).string(parent[element]);
         result[1][row - 2][element] = parent[element];
       }
     }
   })
 }
 
-function getShort(files,excel,target,row,column,result){
+function getShort(files,target,row,column,result){
   if(target.UUID){//if the target has UUID this part will play
     const UUID = target.UUID;
     var path = files.substr(0,files.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/synopsis.txt';//building address of the synopsis.txt
     if (fs.existsSync(path)) {//if the synopsis.txt exests
       var text = fs.readFileSync(path).toString('utf-8');//This line reads the synopsis.txt
-      excel.cell(row,column).string(text);//This line puts text inside excel file in shortDescription column
       result[0][row - 2].shortdescription = text;//This puts text inside result element 0 as shortdescription
       result[1][row - 2].shortdescription = text;//This puts text inside result element 1 as shortdescription
     }
   }
 }
 
-function getText(files,excel,target,row,column,result){
+function getText(files,target,row,column,result){
   if(target.UUID){
     const UUID = target.UUID;
     var path = files.substr(0,files.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
@@ -336,7 +321,6 @@ function getText(files,excel,target,row,column,result){
       text = text.replace(/{/g,"");
       text = text.replace(/\\/g, '');
       text = text.replace(/ldrslt/g,'');
-      excel.cell(row,column).string(text);//This line puts text inside excel file in longDescription column
       result[0][row - 2].longdescription = text;
       result[1][row - 2].longdescription = text;
 
@@ -409,7 +393,7 @@ function stripID(id){//This function stripps id from all the Non-alphanumeric Ch
   return strippedID
 }
 
-function fixupCustomFunctions(result,excel,uno) {
+function fixupCustomFunctions(result,uno) {
   var corrected;
   result.forEach(function(resultElement,index1){//result array has two elements. first one without inheritance, second one with inheritance. the code needs to correct both
     resultElement.forEach(function(element,index2){//each of the above arrays is an array of uno objects that code goes through
@@ -422,7 +406,6 @@ function fixupCustomFunctions(result,excel,uno) {
             corrected = element[meta].replace(',','='+element.id+',')//this line replaces ',' with '=id,'
           }
           result[index1][index2][meta] = corrected;
-          excel.cell(index2+2,uno.indexOf(meta) + 4).string(corrected);
         }
       })
     });
