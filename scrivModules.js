@@ -24,7 +24,8 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
       row = singleElement(XML,element,index,row,files,uno,result);
     }
   })
-
+  fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
+  fixShort(result,uno);
 
 //this part creates the excel part from second element of result array which is after inheritance
   result[1].forEach(function(resultElement,resultIndex){
@@ -36,7 +37,7 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
       }
     })
   })
-  fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
+
   var path = files.substr(0,files.lastIndexOf('.scriv'))//Getting rid of the scrivx file in the path
   path = path.substr(0,path.lastIndexOf('.scriv'))+ '.xlsx';//building address for excel file
   workbook.write(path);; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
@@ -166,26 +167,40 @@ function addElement(XML,target,files,counter,row,uno,parent,result){
   result[0][row -2].parent = parent.id;
   result[1][row -2].parent = parent.id;
   propagate(XML,row, target,parent,uno,counter,result);
-  fixShort(result,row,uno);
+
 
 }
 
-function fixShort(result,row,uno){
+function fixShort(result,uno){
 
 
-  var element = result[1][row-2];
-  if(!element.longdescription){ //if long description is empty sets infoPane to 'none'
-    result[1][row-2].infopane = 'none';
-    result[0][row-2].infopane = 'none';
-  }else if(!element.shortdescription && element.tooltip == '1'){//for each uno puts longdescription text inside shortdescription if there is no shortdescription and tooltip = 1
-    result[1][row-2].shortdescription = element.longdescription;
-    result[0][row-2].shortdescription = element.longdescription;
+  result[1].forEach(function(element,index){
+
+  if(!element.longdescription){ //if long description is empty sets infoPane to 'none'.
+    result[0][index].infopane = 'none';
+    result[1][index].infopane = 'none';
+  }else if(!element.shortdescription && element.tooltip === '1'){//for each uno puts longdescription text inside shortdescription if there is no shortdescription and tooltip = 1
+    result[1][index].shortdescription = element.longdescription;
+    result[0][index].shortdescription = element.longdescription;
   };
-  element = result[1][row-2];
-  if(!element.shortdescription){//if short description is empty sets tooltip to '0'
-    result[1][row-2].tooltip = '0';
-    result[0][row-2].tooltip = '0';
+  var element2 = result[1][index];
+  if(!element2.shortdescription){//if short description is empty sets tooltip to '0'.
+    result[1][index].tooltip = '0';
+    result[0][index].tooltip = '0';
   }
+
+return result
+
+
+
+
+
+
+
+  })
+
+
+
 }
 
 function propagate(XML,row, target,parent,uno,counter,result){
