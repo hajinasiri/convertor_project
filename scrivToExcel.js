@@ -164,10 +164,6 @@ function createStory(finalResult,f,UUID){
         }
       }
     }
-
-    // Adds the closing element to the json data
-
-
     // Finds any story links
     if(element.classes.includes("story") ){
 
@@ -177,7 +173,6 @@ function createStory(finalResult,f,UUID){
           hasChildren = true;
         }
       });
-
       if(hasChildren){
         storyData += "<h"+element.outlinelevel+" class='storyHead storyHead"+element.outlinelevel.toString().padStart(2, '0')+
         "'> <button aria-expanded='false'><i class='icon-right-dir'></i><i class='icon-down-dir'></i>"+element.title+"</row></button></h"+
@@ -207,15 +202,14 @@ function createStory(finalResult,f,UUID){
         }
       }
       storyData += div;
-
       // adding the CR between links
       storyLink += "\r";
       storyData += storyLink;
       storyLink = "";
-
     }
   });
-
+  var text = readText(UUID,f);//reads the story.html from scrivner and puts the content in text
+  storyData = text.replace('storyLinksGoHere',storyData); //puts the created storyData inside story.html where "storyLinksGoHere is"
   var storyPath = f.substr(0,f.lastIndexOf('/') - 1);
   storyPath = storyPath.substr(0,storyPath.lastIndexOf('/')) + '/story.html';//Builds the path that animate.json will get written to
   fs.writeFile(storyPath, storyData, function(err) {//writes the animate.json file
@@ -224,8 +218,6 @@ function createStory(finalResult,f,UUID){
     }
     console.log("story.html file was saved!");
   });
-
-
   voaData += "\r\r}";
   // Save the voaData to the animate.json file
   var animatePath = f.substr(0,f.lastIndexOf('/') - 1);
