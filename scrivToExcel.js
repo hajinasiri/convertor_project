@@ -53,13 +53,23 @@ function main(f) {
 
     var MapArray;
     var config;
+    var mapHtmlUUID;
+    var mapCssUUID;
+    var storyUUID;
     Binder.forEach(function(element){//Finds the map inside Binder
       if(element.Title[0] === 'Map'){
         MapArray = element;
       }else if(element.Title[0] === 'config.json'){//finds config and pust it in config variable
         config = element;
+      }else if(element.Title[0] === 'map.html'){
+        mapHtmlUUID = element.$.UUID;
+      }else if(element.Title[0] === 'map.css'){
+        mapCssUUID = element.$.UUID
+      }else if(element.Title[0] === 'story.html'){
+        storyUUID = element.$.UUID
       }
     });
+
     var configObject = modules.createConfig(f,config);//creates the confing.json file
     var XML = {}
     XML = addToXML(MapArray,[],XML);//adds map object to the final xml
@@ -67,12 +77,48 @@ function main(f) {
     output.Binder = [XML];//sets the output.Binder to an array with XML inside
     var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
     modules.findDuplicates(finalResult);//checks if there are duplicate ids and prints out a warning if there are any
-    createStory(finalResult[1],f);
-
+    createStory(finalResult[1],f,storyUUID);
+    createHtml(mapHtmlUUID,'map.html',f);
+    createHtml(mapCssUUID,'map.css',f);
   });
 }
 
-function createStory(finalResult,f){
+
+function createHtml(UUID,fileTitle,f){//gets the title of the file that needs to be created, UUID of the corresponding content.rtf file,
+  //and the scriv file address and creates the file in the same folder
+var text = readText(UUID,f)
+var Path = f.substr(0,f.lastIndexOf('/') - 1);
+Path = Path.substr(0,Path.lastIndexOf('/') + 1) + fileTitle;
+
+fs.writeFile(Path, text, function(err) {//writes the animate.json file
+  if(err) {
+    return console.log(err);
+  }
+  console.log(fileTitle,"file was saved!");
+});
+
+}
+
+function readText(UUID,f) { //gets the UUID of an uno, and the scriv file address and reads the content.rtf and extracts the text and returns it
+  var path = f.substr(0,f.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
+  if (fs.existsSync(path)) {//if the content.rtf exests
+    var text = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
+    const begin = text.indexOf('fs20') + 'fs20'.length;
+    const end = text.indexOf('fs24 <');
+    text = text.slice(begin, end);
+    text = text.replace('cf0', '');
+    text = text.replace(/'91/g, "'");
+    text = text.replace(/'92/g, "'");
+    text = text.replace(/a0/g, ' ');
+    text = text.replace(/\\/g, '');
+    return text;
+  }
+}
+
+
+
+
+function createStory(finalResult,f,UUID){
   // story,html code and animation
 
   var storyData = "";
@@ -138,11 +184,10 @@ function createStory(finalResult,f){
         element.outlinelevel+"><div hidden>"
       }else{
         storyData += '<a href='+"'"+"#/?"+(element.slideurl? element.slideurl:"");
-        if(element.classes.includes('fileInfo') || element.classes.includes('formInfo')){
-          storyData += element.classes;
-        }else if (!element.slidurl){
-          storyData += "+++&unoInfo=" + element.id;
-        }else{
+        if(element.longdescription){
+          if (!(element.slideurl)){
+            storyData += "+++";
+          }
           storyData += "&unoInfo=" + element.id;
         }
         storyData += "' id='storyLink" + element.id + "'   class='slide storyItem"+

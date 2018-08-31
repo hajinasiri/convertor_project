@@ -1,17 +1,23 @@
-// const rtfParse = require( 'rtf-parse' );
-//rtfParse.parseString( text )
+var fs = require("fs");
+const rtfParse = require( 'rtf-parse' );
+
+
+
+
+// var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv"
+var f = "/Users/shahab/lighthouse/scriv/render2.0/render0.2.scriv"
+
+ f = f + '/Files/Data/FA5DE601-3097-42D2-A087-F8522006F426/content.rtf'
+  var text = fs.readFileSync(f).toString('utf-8');
+
+// rtfParse.parseString( text )
 //     .then( doc => {
-//         console.log(doc.children[0].children[0])
+//         var keys = Object.keys(doc.children[0]);
+//         console.log(doc.children[0].children[doc.children[0].children.length - 1].value);
 //     } );
 
-var fs = require("fs");
 
-var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv"
 
- f = f + '/Files/Data/0B289284-0623-4EAD-93D2-82698847D120/content.rtf'
-  var text = fs.readFileSync(f).toString('utf-8');
-  console.log(text)
+var rtf2html = require('rtf2html')
+console.log(rtf2html(text))
 
-var convert = require('convert-rich-text');
-var html = convert(delta);
-console.log
