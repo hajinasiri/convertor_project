@@ -4,32 +4,12 @@ var fs = require("fs");
 
 
 
-// var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv"
+
 var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv"
 
- f = f + '/Files/Data/575ECF9D-5023-4920-BC65-A48CF0285D37/content.rtf'
+ f = f + '/Files/Data/92F1B1D5-0673-406D-B0D4-061B6F370BE6/content.rtf'
   var text = fs.readFileSync(f).toString('utf-8');
 
-
-
-
-
-// const begin = text.indexOf('fs20') + 'fs20'.length;
-// const end = text.indexOf('fs24 <') - 1;
-
-
-var first,sub,last,portion;
-// first = text.indexOf("fldinst{HYPERLINK");
-// while(first > -1){ //until there is no more hyperlink
-//   //to get rid of the whole hyperlink
-//   first = first -11; // -11 is to compensate for the "{\field{\*\" which comes before this string
-
-//   sub =  text.substr(first,text.length);
-//   last = sub.indexOf('}}');
-//   portion = text.slice(first, last+first+2);
-//   text = text.replace(portion,'');
-//   first = text.indexOf("fldinst{HYPERLINK");
-// }
 
 
 function remove(text,begin, end){//finds all portion of text that begins with 'begin' and ends with 'end' and replaces them with ''.
@@ -95,14 +75,20 @@ text = text.replace(/a0/g, ' ')
 
 text = remove(text,"<!$Scr_", ">");
 text = remove(text,"<$Scr_", ">");
+text = remove(text,"$SCR", "=");
+text = remove(text,"*HYPERLINK ", "/");
+text = text
+        .replace('**disc',"")
+        .replace('*hyphen','')
+        .replace('*decimal.','')
+        .replace('**decimal.','')
+        .replace('*circle','')
+        .replace('\n*','')
+        .replace('*\n','')
+
+
 
 console.log(text)
-
-// var char = '<$Scr_Ps::0>';
-
-// str = str.replace(char,"")
-
-// console.log(text);
 
 
 

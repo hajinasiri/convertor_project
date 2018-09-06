@@ -285,64 +285,80 @@ function getText(files,target,row,column,result){
     var path = files.substr(0,files.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
 
     if (fs.existsSync(path)) {//if the content.rtf exests
-
       var text = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
-
-
-      const begin = text.indexOf('fs20') + 'fs20'.length;
-      const end = text.indexOf('fs24 <') - 1;
-      text = text.slice(begin, end);
-      text = text.replace('cf0', '');
-      text = text.replace(/'91/g, "'");
-      text = text.replace(/'92/g, "'");
-      text = text.replace(/a0/g, ' ');
-
-      var first,sub,last,portion;
-      first = text.indexOf("fldinst{HYPERLINK");
-      while(first > -1){ //until there is no more hyperlink
-        //to get rid of the whole hyperlink
-        first = first -11; // -11 is to compensate for the "{\field{\*\" which comes before this string
-
-        sub =  text.substr(first,text.length);
-        last = sub.indexOf('}}');
-        portion = text.slice(first, last+first+2);
-        text = text.replace(portion,'');
-        first = text.indexOf("fldinst{HYPERLINK");
-      }
-
-
-
-// {\*\shppict{\pict {\*\nisusfilename"
-      first = text.indexOf("nisusfilename"); //getting rid of the image part
-
-
-
+      var first = text.indexOf("nisusfilename"); //getting rid of the image part
       while(first > -1){ //until there is no more hyperlink
         //to get rid of the whole hyperlink
         first = first - 22;
         sub =  text.substr(first,text.length);
-        // last = sub.indexOf('}}}');
         last = text.lastIndexOf('}')
-
-
         portion = text.slice(first, last+first+3);
         text = text.replace(portion,'');
-        first = text.indexOf("fldinst{HYPERLINK");
-
+        first = text.indexOf("nisusfilename");
       }
+      text = stripRtf(text);
+      text = text
+                .replace('cf0', '')
+                .replace(/'91/g, "'")
+                .replace(/'92/g, "'")
+                .replace(/a0/g, ' ')
+                .replace(/\\/g, '');
+      text = remove(text,"<!$Scr_", ">");
+      text = remove(text,"<$Scr_", ">");
+      text = remove(text,"$SCR", "=");
+      text = remove(text,"*HYPERLINK ", "/");
+      text = text
+              .replace('**disc',"")
+              .replace('*hyphen','')
+              .replace('**decimal.','')
+              .replace('*decimal.','')
+              .replace('*circle','')
 
+              .replace('**disc',"")
+              .replace('*hyphen','')
+              .replace('**decimal.','')
+              .replace('*decimal.','')
+              .replace('*circle','')
 
-      text = text.replace(/}}/g,"");
-      text = text.replace(/{/g,"");
-      text = text.replace(/\\/g, '');
-      text = text.replace(/ldrslt/g,'');
+              .replace('\n*','')
+              .replace('*\n','');
+
       result[0][row - 2].longdescription = text;
       result[1][row - 2].longdescription = text;
 
-    }
+          }
+        }
+
+      }
+
+function remove(text,begin, end){//finds all portion of text that begins with 'begin' and ends with 'end' and replaces them with ''.
+  var last;
+  var str = text;
+  var first = str.indexOf(begin); //getting rid of the image part
+  while(first > -1){
+    sub =  str.substr(first,str.length);
+    last = sub.indexOf(end) + first + 1;
+    portion = str.slice(first, last);
+    str = str.replace(portion,"");
+    first = str.indexOf(begin);
   }
 
+  return str
 }
+
+function stripRtf(str){//strips rtf added characters
+    var basicRtfPattern = /\{\*?\\[^{}]+;}|[{}]|\\[A-Za-z]+\n?(?:-?\d+)?[ ]?/g;
+    var newLineSlashesPattern = /\\\n/g;
+    var ctrlCharPattern = /\n\\f[0-9]\s/g;
+
+    //Remove RTF Formatting, replace RTF new lines with real line breaks, and remove whitespace
+    return str
+        .replace(ctrlCharPattern, "")
+        .replace(basicRtfPattern, "")
+        .replace(newLineSlashesPattern, "\n")
+        .trim();
+}
+
 
 
 function createConfig(f,config){

@@ -209,7 +209,10 @@ function createStory(finalResult,f,UUID){
     }
   });
   var text = readText(UUID,f);//reads the story.html from scrivner and puts the content in text
-  storyData = text.replace('storyLinksGoHere',storyData); //puts the created storyData inside story.html where "storyLinksGoHere is"
+  if(text){
+    storyData = text.replace('storyLinksGoHere',storyData); //puts the created storyData inside story.html where "storyLinksGoHere is"
+  }
+
   var storyPath = f.substr(0,f.lastIndexOf('/') - 1);
   storyPath = storyPath.substr(0,storyPath.lastIndexOf('/')) + '/story.html';//Builds the path that animate.json will get written to
   fs.writeFile(storyPath, storyData, function(err) {//writes the animate.json file
