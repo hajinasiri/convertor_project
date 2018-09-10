@@ -29,6 +29,7 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
 
 //this part creates the excel part from second element of result array which is after inheritance
   result[1].forEach(function(resultElement,resultIndex){
+    excel.cell(resultIndex + 2,1).number(resultIndex + 1);
     uno.forEach(function(unoElement,unoIndex){
       if(typeof(resultElement[unoElement]) === 'number'){
         excel.cell(resultIndex+2,unoIndex+1).number(resultElement[unoElement]);
@@ -47,7 +48,7 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
 
 function initialize(excel,XML){ //initializes the MetaData columns inside excel file
 
-  var hardCoded = ['label','id','parent','outlineNumber','outlineLevel', 'shortDescription', 'longDescription','classes'];
+  var hardCoded = ['Number','label','id','parent','outlineNumber','outlineLevel', 'shortDescription', 'longDescription','classes'];
 
   var uno =[];
 
@@ -65,6 +66,7 @@ function initialize(excel,XML){ //initializes the MetaData columns inside excel 
     excel.cell(1,1+index).string(element);
   });
   uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
+  console.log(uno);
   return uno;
 }
 
