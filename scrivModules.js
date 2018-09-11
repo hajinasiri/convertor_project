@@ -31,7 +31,7 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
 
 //this part creates the excel part from second element of result array which is after inheritance
   result[1].forEach(function(resultElement,resultIndex){
-    excel.cell(resultIndex + 2,1).number(resultIndex + 1);//puts the numbers in "Number" column in the excel file
+    excel.cell(resultIndex + 2,1).number(resultIndex + 2);//puts the numbers in "Number" column in the excel file
     uno.forEach(function(unoElement,unoIndex){
       if(typeof(resultElement[unoElement]) === 'number'){
         excel.cell(resultIndex+2,unoIndex+1).number(resultElement[unoElement]);
@@ -50,7 +50,7 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
 
 function initialize(excel,XML){ //initializes the MetaData columns inside excel file
 
-  var hardCoded = ['Number','label','id','parent','outlineNumber','outlineLevel', 'shortDescription', 'longDescription','classes'];
+  var hardCoded = ['rowNumber','label','id','parent','outlineNumber','outlineLevel', 'shortDescription', 'longDescription','classes'];
 
   var uno =[];
 
