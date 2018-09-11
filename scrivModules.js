@@ -23,9 +23,7 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
     if(element.Children){ //if there is children in Map, uses singleElement function to go through all the children inside map and gets the last row number from that function
       row = singleElement(XML,element,index,row,files,uno,result);
     }
-  })
-
-
+  });
   fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
   propagate(result);
   fixShort(result,uno);
@@ -261,9 +259,8 @@ function propagate(result){
       }
 
     });
-    if(uno.url){
+    if(uno.url){//if uno has a url, then onDoubleClick for the uno gets set to "+++&openLink=" + uno.url
       result[1][index].ondoubleclick = "+++&openLink=" + uno.url;
-      console.log(index);
     }
 
   });
@@ -416,14 +413,13 @@ function findDuplicates(finalResult){
 }
 
 function stripID(id){//This function stripps id from all the Non-alphanumeric Characters except '-'
-   var strippedID = id.replace(/ /g,'');//creating id from target title by stripping it from non-alphanumeric characters and space
-  strippedID = strippedID.replace('-',"dashdashdashdash"); //replaces '-' to with  "dashdashdashdash" to keep it from being removed
+  var strippedID = id.replace(/ /g,'');//creating id from target title by stripping it from non-alphanumeric characters and space
+  strippedID = strippedID.replace(/-/g,"dashdashdashdash"); //replaces '-' to with  "dashdashdashdash" to keep it from being removed
   strippedID = strippedID.replace(/\W/g, ''); //removes all the non-alphaneumeric characters
-  strippedID = strippedID.replace("dashdashdashdash", '-');//replaces "dashdashdashdash" back to '-'
+  strippedID = strippedID.replace(/dashdashdashdash/g, '-');//replaces "dashdashdashdash" back to '-'
   while(parseInt(strippedID[0],10) || strippedID[0] === '-' || strippedID[0] === '0'){
     strippedID = strippedID.substr(1,id.length);
   }
-
   return strippedID
 }
 
