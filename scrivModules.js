@@ -26,7 +26,6 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
   });
   propagate(result);
   fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
-  fix(result);
   fixShort(result,uno);
   // fixUnofrom(result);
 
@@ -251,24 +250,22 @@ function propagate(result){
         parent = parentUno;
       }
     });
-    if(uno.classes.includes('link') && !uno.unofrom){//if classes of the uno includes "link" and unofrom is empty, the uno inherits unofrom from its parent
+    if(!uno.unofrom && uno.unoto && parent.unofrom){//if classes of the uno includes "link" and unofrom is empty, the uno inherits unofrom from its parent
       result[1][index].unofrom = parent.unofrom;
     }
     inheritable.forEach(function(meta){ //if there is one of the inheritables that doesn't have value in the uno, but has the value in the parent, the uno inherits the value from the parent
       if(parent && parent[meta] && uno[meta] === undefined){
         result[1][index][meta] = parent[meta];
       }
-
     });
+  });
+
+  //some fixes after inheritance
+  unoArray.forEach(function(uno,index){
     if(uno.url){//if uno has a url, then onDoubleClick for the uno gets set to "+++&openLink=" + uno.url
       result[1][index].ondoubleclick = "+++&openLink=" + uno.url;
     }
-
-  });
-}
-
-function fix(result){
-
+  })
 }
 
 function getShort(files,target,row,column,result){
