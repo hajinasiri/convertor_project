@@ -24,14 +24,15 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
       row = singleElement(XML,element,index,row,files,uno,result);
     }
   });
-  fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
   propagate(result);
+  fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
+  fix(result);
   fixShort(result,uno);
   // fixUnofrom(result);
 
 //this part creates the excel part from second element of result array which is after inheritance
   result[1].forEach(function(resultElement,resultIndex){
-    excel.cell(resultIndex + 2,1).number(resultIndex + 1);
+    excel.cell(resultIndex + 2,1).number(resultIndex + 1);//puts the numbers in "Number" column in the excel file
     uno.forEach(function(unoElement,unoIndex){
       if(typeof(resultElement[unoElement]) === 'number'){
         excel.cell(resultIndex+2,unoIndex+1).number(resultElement[unoElement]);
@@ -264,6 +265,9 @@ function propagate(result){
     }
 
   });
+}
+
+function fix(result){
 
 }
 
