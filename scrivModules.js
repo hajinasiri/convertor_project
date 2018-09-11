@@ -253,7 +253,7 @@ function extract(XML,target,parent,uno,counter,result){//this function extracts 
 
 function propagate(result){
   var parent = undefined;
-  const unoArray = result [0];
+  const unoArray = result [1];
   const inheritable = ['classes','hoveraction','hoverfunction','clickaction','clickfunction','ondoubleclick','tooltip','infopane','onfunction',
     'offfunction','openfunction','closefunction','ttstyle','render','symbol','location','xpos','ypos','xscale','yscale','xoffset',
     'yoffset','xsize', 'ysize']; //this sets the object of inheritables
@@ -264,7 +264,7 @@ function propagate(result){
         parent = parentUno;
       }
     });
-    if(uno.classes.includes('link') && !uno.unofrom){
+    if(uno.classes.includes('link') && !uno.unofrom){//if classes of the uno includes "link" and unofrom is empty, the uno inherits unofrom from its parent
       result[1][index].unofrom = parent.unofrom;
     }
     inheritable.forEach(function(meta){ //if there is one of the inheritables that doesn't have value in the uno, but has the value in the parent, the uno inherits the value from the parent
