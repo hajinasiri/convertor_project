@@ -214,10 +214,7 @@ function extract(XML,target,parent,uno,counter,result){//this function extracts 
   var unoto = ''; // to initiate the value for unoto. This variable is used to check if the child has unoto value and if yes store the value in it
   var unofrom = '';//To initiate the value for unfrom. This variable is used to chek if the child has unofrom value and if yes store the value in it
   var id = target.Title.replace(/ /g,''); //assumming that the target has no id, and making id from title. If the target has its own id, it will update id in the loop below
-  var label = 0;
   uno.forEach(function(element,index){//goes through all the MetaData and checks if the child has that value or the parent and puts that vlue in excel file
-
-    var found = false;
     CustomMetaData.forEach(function(childData){//Checks if the child has a value for it
       if( childData.FieldID === element){
         result[0][row - 2][element] = childData.Value;//putting all the properties of the uno inside the result arrays insid the row-2 element which is an array itself and inside it's first elemant
@@ -231,18 +228,9 @@ function extract(XML,target,parent,uno,counter,result){//this function extracts 
           id = stripID(id);
           result[0][row - 2][element] = id;//replace the id in result array from metaData with the stripped id
           result[1][row - 2][element] = id;
-        }else if(element === 'label'){
-          label = childData.Value;
         }
-        found = true;
       }
     });
-
-    if(element === 'classes' && result[0][row - 2].classes){//since 'classes' does not show up in metaData object and it's built from Keywords,
-      //the loop abot does not find classes and keeps found variable's value 'false'. This "if" checks if the class is already set in the result
-    //array, sets found variable to true to prevent inheriting class from parent
-      found = true;
-    };
 
     if(unoto && !unofrom && id){
       result[0][row - 2].id = id; //and then put that value for id in result array
