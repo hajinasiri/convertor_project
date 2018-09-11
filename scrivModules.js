@@ -24,8 +24,12 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
       row = singleElement(XML,element,index,row,files,uno,result);
     }
   })
+
+  propagate(result);
   fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
+  propagate(result);
   fixShort(result,uno);
+  // fixUnofrom(result);
 
 //this part creates the excel part from second element of result array which is after inheritance
   result[1].forEach(function(resultElement,resultIndex){
@@ -66,7 +70,6 @@ function initialize(excel,XML){ //initializes the MetaData columns inside excel 
     excel.cell(1,1+index).string(element);
   });
   uno = uno.map(a => a.toLowerCase());//Makes all uno titles lowercase to be able to search them
-  console.log(uno);
   return uno;
 }
 
@@ -168,7 +171,7 @@ function addElement(XML,target,files,counter,row,uno,parent,result){
 
   result[0][row -2].parent = parent.id;
   result[1][row -2].parent = parent.id;
-  propagate(XML,row, target,parent,uno,counter,result);
+  extract(XML,target,parent,uno,counter,result);
 
 
 }
@@ -190,22 +193,12 @@ function fixShort(result,uno){
     result[1][index].tooltip = '0';
     result[0][index].tooltip = '0';
   }
-
-return result
-
-
-
-
-
-
-
+  return result
   })
-
-
-
 }
 
-function propagate(XML,row, target,parent,uno,counter,result){
+function extract(XML,target,parent,uno,counter,result){//this function extracts metadata and text from each uno and adds it to the result array
+  const row = result[0].length + 1;
 
   if(target.MetaData && target.MetaData.CustomMetaData){
     var CustomMetaData = target.MetaData.CustomMetaData; //get the CustomMetaData from the target
@@ -267,6 +260,31 @@ function propagate(XML,row, target,parent,uno,counter,result){
       }
     }
   })
+}
+
+function propagate(result){
+  var parent = undefined;
+  const unoArray = result [0];
+  const inheritable = ['classes','hoveraction','hoverfunction','clickaction','clickfunction','ondoubleclick','tooltip','infopane','onfunction',
+    'offfunction','openfunction','closefunction','ttstyle','render','symbol','location','xpos','ypos','xscale','yscale','xoffset',
+    'yoffset','xsize', 'ysize'];
+  unoArray.forEach(function(uno,index){
+    const parentID = uno.parent;
+    unoArray.forEach(function(parentUno){//this finds the parent of the uno
+      if(parentUno.id === parentID){
+        parent = parentUno;
+      }
+    });
+
+    inheritable.forEach(function(meta){
+      if(parent && parent[meta] && uno[meta] === undefined){
+        result[1][index][meta] = parent[meta];
+      }
+
+    })
+
+  })
+
 }
 
 function getShort(files,target,row,column,result){
