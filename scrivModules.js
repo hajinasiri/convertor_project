@@ -248,17 +248,6 @@ function extract(XML,target,parent,uno,counter,result){//this function extracts 
       result[0][row - 2].id = id; //and then put that value for id in result array
       result[1][row - 2].id = id;
     }
-    //making the object of inheritable properties
-    const inheritable = {'classes':'',hoveraction:'',hoverfunction:'',clickaction:'',clickfunction:'',ondoubleclick:'',tooltip:'',infopane:'',onfunction:'',
-      offfunction:'',openfunction:'',closefunction:'',ttstyle:'',render:'',symbol:'',location:'',xpos:'',ypos:'',xscale:'',yscale:'',xoffset:'',
-      yoffset:'',xsize:'', ysize: ''
-    };
-
-    if(!found && element in inheritable){//if the child didn't have any value for the MetaData and the property is among the inheritables
-      if(element in parent){//checking if the parent has the MetaData
-        result[1][row - 2][element] = parent[element];
-      }
-    }
   })
 }
 
@@ -267,7 +256,7 @@ function propagate(result){
   const unoArray = result [0];
   const inheritable = ['classes','hoveraction','hoverfunction','clickaction','clickfunction','ondoubleclick','tooltip','infopane','onfunction',
     'offfunction','openfunction','closefunction','ttstyle','render','symbol','location','xpos','ypos','xscale','yscale','xoffset',
-    'yoffset','xsize', 'ysize'];
+    'yoffset','xsize', 'ysize']; //this sets the object of inheritables
   unoArray.forEach(function(uno,index){
     const parentID = uno.parent;
     unoArray.forEach(function(parentUno){//this finds the parent of the uno
@@ -275,8 +264,10 @@ function propagate(result){
         parent = parentUno;
       }
     });
-
-    inheritable.forEach(function(meta){
+    if(uno.classes.includes('link') && !uno.unofrom){
+      result[1][index].unofrom = parent.unofrom;
+    }
+    inheritable.forEach(function(meta){ //if there is one of the inheritables that doesn't have value in the uno, but has the value in the parent, the uno inherits the value from the parent
       if(parent && parent[meta] && uno[meta] === undefined){
         result[1][index][meta] = parent[meta];
       }
