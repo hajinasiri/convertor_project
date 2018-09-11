@@ -25,7 +25,7 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
     }
   })
 
-  propagate(result);
+
   fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
   propagate(result);
   fixShort(result,uno);
@@ -260,9 +260,13 @@ function propagate(result){
         result[1][index][meta] = parent[meta];
       }
 
-    })
+    });
+    if(uno.url){
+      result[1][index].ondoubleclick = "+++&openLink=" + uno.url;
+      console.log(index);
+    }
 
-  })
+  });
 
 }
 
