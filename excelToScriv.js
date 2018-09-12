@@ -10,13 +10,12 @@ const fileName = scriv.substr(scriv.lastIndexOf('/'), scriv.length) + 'x';
 const scrivx =scriv +fileName; //builds the destination path for scrivx file
 ncp.limit = 16;//part of the module
 ncp('./template.scriv', scriv, function (err) { //copies the template scriv file to the destination of scriv with the final name
- if (err) {
-   return console.error(err);
- }else{
-
-  main();
- }
- console.log('done!');
+  if (err) {
+    return console.error(err);
+  }else{
+    main();
+  }
+  console.log('done!');
 });
 
 function main(){
@@ -27,12 +26,7 @@ function main(){
   text = text.replace('<Keywords></Keywords>', buildKeywords(excel,keywords));
   buildMap(excel,keywords);
   text = text.replace('<CustomMetaDataSettings></CustomMetaDataSettings>' , buildCustomMetaDataSettings(excel)); //builds CustomMetaDataSettings part and puts it in the text
-  fs.writeFile(scrivx, text, function(err) {//writes the text to scrivx file
-      if(err) {
-          return console.log(err);
-      }
-      console.log("The file was saved!");
-  });
+  writeFile(scrivx, text);
 
 }
 
@@ -87,10 +81,20 @@ function buildMap(excel,keywords){
 
 function buildBinderItem(row,rows,index){
   var binderItem = '<BinderItem UUID="' + index;
-  // fs.mkdirSync(scriv+'/files/data/' + index);
+  var content = scriv+'/files/data/' + index ;//puts the address for content.rtf's folder for this row in variable content
+  fs.mkdirSync(content ); //creates the folder with row index as UUID for putting content.rtf and synopsis
+  if(row[6]){
+    writeFile(content+ '/synopsis.txt', row[6]);//writes the synopsis file
+  }
 }
 
-
+function writeFile(path,text){//This function writes the text to the path of the file
+      fs.writeFile(path, text, function(err) {//writes the text to scrivx file
+      if(err) {
+          return console.log(err);
+      }
+    });
+}
 
 
 
