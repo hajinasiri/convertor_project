@@ -211,21 +211,17 @@
             <Status ID="7">Revised</Status>
         </StatusItems>
     </StatusSettings>
-    <CustomMetaDataSettings>
-        <MetaDataField ID="id" Type="Text" Wraps="No" Align="Left">
-            <Title>id</Title>
-        </MetaDataField>
-    </CustomMetaDataSettings>
+    <CustomMetaDataSettings></CustomMetaDataSettings>
     <ProjectTargets Notify="No">
         <DraftTarget Type="Words" CountIncludedOnly="Yes" CurrentCompileGroupOnly="No" Deadline="2012-09-17 10:22:06 -0700" IgnoreDeadline="Yes">0</DraftTarget>
         <SessionTarget Type="Words" CountDraftOnly="Yes" AllowNegatives="Yes" ResetType="Time" ResetTime="00:00" DeterminedFromDeadline="No" WritingDays="" CanWriteOnDeadlineDate="No">0</SessionTarget>
-        <PreviousSession Words="0" Characters="0" Date="2018-09-10 19:08:20 -0700"></PreviousSession>
+        <PreviousSession Words="0" Characters="0" Date="2018-09-11 15:29:36 -0700"></PreviousSession>
     </ProjectTargets>
-    <RecentWritingHistory Date="2018-09-10 00:00:00 -0700">
+    <RecentWritingHistory Date="2018-09-11 00:00:00 -0700">
         <DraftWordCount>0</DraftWordCount>
         <DraftCharCount>0</DraftCharCount>
-        <OtherWordCount>11</OtherWordCount>
-        <OtherCharCount>73</OtherCharCount>
+        <OtherWordCount>0</OtherWordCount>
+        <OtherCharCount>0</OtherCharCount>
     </RecentWritingHistory>
     <PrintSettings PaperSize="612.0,792.0" LeftMargin="72.0" RightMargin="72.0" TopMargin="90.0" BottomMargin="90.0" PaperType="na-letter" Orientation="Portrait" HorizontalPagination="Clip" VerticalPagination="Auto" ScaleFactor="1.0" HorizontallyCentered="Yes" VerticallyCentered="Yes" Collates="Yes" PagesAcross="1" PagesDown="1"></PrintSettings>
 </ScrivenerProject>
