@@ -29,7 +29,8 @@ fs.rename(scriv + 'template.scrivx', scrivx, function(err) {//changes the name o
 
 var excel = xlsx.parse(f); // parses the excel file
 var text = fs.readFileSync('./template.scriv/template.scrivx').toString('utf-8'); //reads the text from scrivx file
-buildKeywords(excel);
+var keywords = getKeywords(excel);
+buildKeywords(excel,keywords);
 text = text.replace('<CustomMetaDataSettings></CustomMetaDataSettings>' , buildCustomMetaDataSettings(excel)); //builds CustomMetaDataSettings part and puts it in the text
 
 fs.writeFile(scrivx, text, function(err) {//writes the text to scrivx file
@@ -53,7 +54,27 @@ function buildCustomMetaDataSettings(excel){
   return str
 }
 
-function buildKeywords (excel){
-  console.log(excel[0].data[0]);
-
+function getKeywords (excel){ //makes an object of all the classes and returns the object
+  var keywords = {};
+  var classes;
+  var rows = excel[0].data;//This lines puts all the rows in "rows" variable
+  rows.forEach(function(row,index){//goes through each row
+    if(index){//skips the row 0 which is the row that contains column titles
+      classes = row[8];
+      classes = classes.split(' ');
+      classes.forEach(function(element){
+        if(element && !(element in keywords)){
+          keywords[element] = index;
+        }
+      })
+    }
+  });
+  return keywords
 }
+
+function buildKeywords(excel,keywords){
+  var str = '';
+}
+
+
+
