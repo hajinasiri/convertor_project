@@ -32,7 +32,7 @@ var text = fs.readFileSync('./template.scriv/template.scrivx').toString('utf-8')
 var keywords = getKeywords(excel);
 buildKeywords(excel,keywords);
 text = text.replace('<CustomMetaDataSettings></CustomMetaDataSettings>' , buildCustomMetaDataSettings(excel)); //builds CustomMetaDataSettings part and puts it in the text
-
+text = text.replace('<Keywords></Keywords>', buildKeywords(excel,keywords));
 fs.writeFile(scrivx, text, function(err) {//writes the text to scrivx file
     if(err) {
         return console.log(err);
@@ -74,6 +74,10 @@ function getKeywords (excel){ //makes an object of all the classes and returns t
 
 function buildKeywords(excel,keywords){
   var str = '';
+  for (var key in keywords) {
+    str += '<Keyword ID="' + keywords[key] + '">\n<Title>' + key + '</Title>\n<Color>0.614707 0.655123 1.0</Color></Keyword>'
+  }
+  return str
 }
 
 
