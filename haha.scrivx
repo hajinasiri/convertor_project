@@ -136,7 +136,23 @@
             <Title>Updated Documents</Title>
         </Collection>
     </Collections>
-    <Keywords></Keywords>
+    <Keywords>
+     <Keyword ID="4">
+        <Title>link</Title>
+       <Color>0.614707 0.655123 1.0</Color></Keyword>
+     <Keyword ID="5">
+        <Title>story</Title>
+       <Color>0.614707 0.655123 1.0</Color></Keyword>
+     <Keyword ID="7">
+        <Title>node</Title>
+       <Color>0.614707 0.655123 1.0</Color></Keyword>
+     <Keyword ID="13">
+        <Title>actor</Title>
+       <Color>0.614707 0.655123 1.0</Color></Keyword>
+     <Keyword ID="18">
+        <Title>voa</Title>
+       <Color>0.614707 0.655123 1.0</Color></Keyword>
+    </Keywords>
     <SectionTypes>
         <TypeDefinitions>
             <Type ID="7E3985A6-F9F3-4DED-A248-89AC9590A390">Heading</Type>
@@ -182,7 +198,118 @@
             <Status ID="7">Revised</Status>
         </StatusItems>
     </StatusSettings>
-    <CustomMetaDataSettings></CustomMetaDataSettings>
+    <CustomMetaDataSettings>      <MetaDataField ID="id" Type="Text" Wraps="No" Align="Left">
+       <Title>id</Title>
+      </MetaDataField>
+      <MetaDataField ID="thisNewThing" Type="Text" Wraps="No" Align="Left">
+       <Title>thisNewThing</Title>
+      </MetaDataField>
+      <MetaDataField ID="subtitle" Type="Text" Wraps="No" Align="Left">
+       <Title>subtitle</Title>
+      </MetaDataField>
+      <MetaDataField ID="unoFrom" Type="Text" Wraps="No" Align="Left">
+       <Title>unoFrom</Title>
+      </MetaDataField>
+      <MetaDataField ID="unoTo" Type="Text" Wraps="No" Align="Left">
+       <Title>unoTo</Title>
+      </MetaDataField>
+      <MetaDataField ID="param1" Type="Text" Wraps="No" Align="Left">
+       <Title>param1</Title>
+      </MetaDataField>
+      <MetaDataField ID="param2" Type="Text" Wraps="No" Align="Left">
+       <Title>param2</Title>
+      </MetaDataField>
+      <MetaDataField ID="param3" Type="Text" Wraps="No" Align="Left">
+       <Title>param3</Title>
+      </MetaDataField>
+      <MetaDataField ID="param4" Type="Text" Wraps="No" Align="Left">
+       <Title>param4</Title>
+      </MetaDataField>
+      <MetaDataField ID="hoverAction" Type="Text" Wraps="No" Align="Left">
+       <Title>hoverAction</Title>
+      </MetaDataField>
+      <MetaDataField ID="hoverFunction" Type="Text" Wraps="No" Align="Left">
+       <Title>hoverFunction</Title>
+      </MetaDataField>
+      <MetaDataField ID="clickAction" Type="Text" Wraps="No" Align="Left">
+       <Title>clickAction</Title>
+      </MetaDataField>
+      <MetaDataField ID="clickFunction" Type="Text" Wraps="No" Align="Left">
+       <Title>clickFunction</Title>
+      </MetaDataField>
+      <MetaDataField ID="onDoubleClick" Type="Text" Wraps="No" Align="Left">
+       <Title>onDoubleClick</Title>
+      </MetaDataField>
+      <MetaDataField ID="url" Type="Text" Wraps="No" Align="Left">
+       <Title>url</Title>
+      </MetaDataField>
+      <MetaDataField ID="urlText" Type="Text" Wraps="No" Align="Left">
+       <Title>urlText</Title>
+      </MetaDataField>
+      <MetaDataField ID="tooltip" Type="Text" Wraps="No" Align="Left">
+       <Title>tooltip</Title>
+      </MetaDataField>
+      <MetaDataField ID="infoPane" Type="Text" Wraps="No" Align="Left">
+       <Title>infoPane</Title>
+      </MetaDataField>
+      <MetaDataField ID="onURL" Type="Text" Wraps="No" Align="Left">
+       <Title>onURL</Title>
+      </MetaDataField>
+      <MetaDataField ID="offURL" Type="Text" Wraps="No" Align="Left">
+       <Title>offURL</Title>
+      </MetaDataField>
+      <MetaDataField ID="openURL" Type="Text" Wraps="No" Align="Left">
+       <Title>openURL</Title>
+      </MetaDataField>
+      <MetaDataField ID="closeURL" Type="Text" Wraps="No" Align="Left">
+       <Title>closeURL</Title>
+      </MetaDataField>
+      <MetaDataField ID="onFunction" Type="Text" Wraps="No" Align="Left">
+       <Title>onFunction</Title>
+      </MetaDataField>
+      <MetaDataField ID="offFunction" Type="Text" Wraps="No" Align="Left">
+       <Title>offFunction</Title>
+      </MetaDataField>
+      <MetaDataField ID="openFunction" Type="Text" Wraps="No" Align="Left">
+       <Title>openFunction</Title>
+      </MetaDataField>
+      <MetaDataField ID="closeFunction" Type="Text" Wraps="No" Align="Left">
+       <Title>closeFunction</Title>
+      </MetaDataField>
+      <MetaDataField ID="ttStyle" Type="Text" Wraps="No" Align="Left">
+       <Title>ttStyle</Title>
+      </MetaDataField>
+      <MetaDataField ID="slideURL" Type="Text" Wraps="No" Align="Left">
+       <Title>slideURL</Title>
+      </MetaDataField>
+      <MetaDataField ID="render" Type="Text" Wraps="No" Align="Left">
+       <Title>render</Title>
+      </MetaDataField>
+      <MetaDataField ID="symbol" Type="Text" Wraps="No" Align="Left">
+       <Title>symbol</Title>
+      </MetaDataField>
+      <MetaDataField ID="location" Type="Text" Wraps="No" Align="Left">
+       <Title>location</Title>
+      </MetaDataField>
+      <MetaDataField ID="xpos" Type="Text" Wraps="No" Align="Left">
+       <Title>xpos</Title>
+      </MetaDataField>
+      <MetaDataField ID="ypos" Type="Text" Wraps="No" Align="Left">
+       <Title>ypos</Title>
+      </MetaDataField>
+      <MetaDataField ID="xsize" Type="Text" Wraps="No" Align="Left">
+       <Title>xsize</Title>
+      </MetaDataField>
+      <MetaDataField ID="ysize" Type="Text" Wraps="No" Align="Left">
+       <Title>ysize</Title>
+      </MetaDataField>
+      <MetaDataField ID="xoffset" Type="Text" Wraps="No" Align="Left">
+       <Title>xoffset</Title>
+      </MetaDataField>
+      <MetaDataField ID="yoffset" Type="Text" Wraps="No" Align="Left">
+       <Title>yoffset</Title>
+      </MetaDataField>
+    </CustomMetaDataSettings>
     <ProjectTargets Notify="No">
         <DraftTarget Type="Words" CountIncludedOnly="Yes" CurrentCompileGroupOnly="No" Deadline="2012-09-17 10:22:06 -0700" IgnoreDeadline="Yes">0</DraftTarget>
         <SessionTarget Type="Words" CountDraftOnly="Yes" AllowNegatives="Yes" ResetType="Time" ResetTime="00:00" DeterminedFromDeadline="No" WritingDays="" CanWriteOnDeadlineDate="No">0</SessionTarget>
