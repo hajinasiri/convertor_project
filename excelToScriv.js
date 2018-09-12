@@ -2,6 +2,7 @@
 var xlsx = require('node-xlsx');
 var fs = require('fs');
 var ncp = require('ncp').ncp; //Module to copy folders
+var dateTime = require('node-datetime');//Module for getting dateTime
 
 var f = "/Users/shahab/lighthouse/scriv/excelToScriv/render0.3.xlsx";
 
@@ -85,15 +86,27 @@ function buildMap(excel,keywords){
 }
 
 function buildBinderItem(row,rows,index){
-  var binderItem = '<BinderItem UUID="' + index;
+  var binderItem = '<BinderItem UUID="' + index + '" ';
   var content = scriv+'/files/data/' + index ;//puts the address for content.rtf's folder for this row in variable content
-  fs.mkdirSync(content ); //creates the folder with row index as UUID for putting content.rtf and synopsis
+  if (!fs.existsSync(content)) {//if the content folder does not exist
+    fs.mkdirSync(content ); //creates the folder with row index as UUID for putting content.rtf and synopsis
+  }
   if(row[6]){
     writeFile(content+'/synopsis.txt', row[6]);//writes the synopsis file
   }
   if(row[7]){
     writeFile(content+'/content.rtf',row[7]);//writes the content.rtf file
   }
+  if(rows[index + 1] && row[5]<rows[index + 1][5]){
+    binderItem += 'Type="Folder"';
+  }else{
+    binderItem += 'Type="Text"';
+  }
+  var dt = dateTime.create();
+  var formatted = dt.format('Y-m-d H:M:S');
+  var date = formatted + ' -0700';
+  binderItem += ' Created="' + date + '"' + ' Modified="' + date + '">';
+  console.log(binderItem);
 }
 
 
