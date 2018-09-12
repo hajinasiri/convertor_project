@@ -27,10 +27,15 @@ function main(){
   buildMap(excel,keywords);
   text = text.replace('<CustomMetaDataSettings></CustomMetaDataSettings>' , buildCustomMetaDataSettings(excel)); //builds CustomMetaDataSettings part and puts it in the text
   writeFile(scrivx, text);
-
 }
 
-
+function writeFile(path,text){//This function writes the text to the path of the file
+      fs.writeFile(path, text, function(err) {//writes the text to scrivx file
+      if(err) {
+          return console.log(err);
+      }
+    });
+}
 
 function buildCustomMetaDataSettings(excel){
   var metaSetting = excel[0].data[0];
@@ -84,17 +89,16 @@ function buildBinderItem(row,rows,index){
   var content = scriv+'/files/data/' + index ;//puts the address for content.rtf's folder for this row in variable content
   fs.mkdirSync(content ); //creates the folder with row index as UUID for putting content.rtf and synopsis
   if(row[6]){
-    writeFile(content+ '/synopsis.txt', row[6]);//writes the synopsis file
+    writeFile(content+'/synopsis.txt', row[6]);//writes the synopsis file
+  }
+  if(row[7]){
+    writeFile(content+'/content.rtf',row[7]);//writes the content.rtf file
   }
 }
 
-function writeFile(path,text){//This function writes the text to the path of the file
-      fs.writeFile(path, text, function(err) {//writes the text to scrivx file
-      if(err) {
-          return console.log(err);
-      }
-    });
-}
+
+
+
 
 
 
