@@ -27,6 +27,8 @@ function main(){
   text = text.replace('<Keywords></Keywords>', buildKeywords(excel,keywords));
   buildMap(excel,keywords);
   text = text.replace('<CustomMetaDataSettings></CustomMetaDataSettings>' , buildCustomMetaDataSettings(excel)); //builds CustomMetaDataSettings part and puts it in the text
+  text = text.replace('<Map></Map>', buildMap(excel,keywords))
+  text = text.replace('&','&amp;')
   writeFile(scrivx, text);
 }
 
@@ -44,7 +46,7 @@ function buildCustomMetaDataSettings(excel){
   metaSetting.splice(1,6);//removes manually added metadata
   var str = '';
   metaSetting.forEach(function(meta){
-    str += '      <MetaDataField ID="' + meta + '" Type="Text" Wraps="No" Align="Left">\n       <Title>' + meta + '</Title>\n      </MetaDataField>\n';
+    str += '\n      <MetaDataField ID="' + meta + '" Type="Text" Wraps="No" Align="Left">\n       <Title>' + meta + '</Title>\n      </MetaDataField>\n';
   })
   str = '<CustomMetaDataSettings>' + str + '    </CustomMetaDataSettings>';
   return str
@@ -81,12 +83,29 @@ function buildMap(excel,keywords){
   var mapStr = '';
   var rows = excel[0].data;
   rows.forEach(function(row,index){
-    buildBinderItem(row,rows,index);
+    if(index > 0){
+      mapStr += '\n' +buildBinderItem(row,rows,index);//adding the binderItem string to it
+      mapStr += '\n  <Title>' + row[1]+ '</Title>';
+      mapStr += buildMetaData(row,rows);
+      mapStr += buildUnoKeywords(row,keywords);
+      mapStr += buildClose(row,rows,index);
+    }
+
   })
+  writeFile('test.scrivx',mapStr);
+  return mapStr
 }
 
 function buildBinderItem(row,rows,index){
-  var binderItem = '<BinderItem UUID="' + index + '" ';
+  var binderItem = '';
+
+  if(rows[index - 1][5] !=='outline' && row[5] > rows[index - 1 ][5]){
+    binderItem += '\n<Children>';
+  }
+  for(i=0;i<row[5] + 2;i++){
+    binderItem += ' '
+  }
+  binderItem += '\n<BinderItem UUID="' + index + '" ';
   var content = scriv+'/files/data/' + index ;//puts the address for content.rtf's folder for this row in variable content
   if (!fs.existsSync(content)) {//if the content folder does not exist
     fs.mkdirSync(content ); //creates the folder with row index as UUID for putting content.rtf and synopsis
@@ -97,18 +116,68 @@ function buildBinderItem(row,rows,index){
   if(row[7]){
     writeFile(content+'/content.rtf',row[7]);//writes the content.rtf file
   }
-  if(rows[index + 1] && row[5]<rows[index + 1][5]){
+  if(rows[index + 1] && row[5]<rows[index + 1][5]){//if outline number of this row is smaller than the next one's
     binderItem += 'Type="Folder"';
   }else{
     binderItem += 'Type="Text"';
   }
-  var dt = dateTime.create();
-  var formatted = dt.format('Y-m-d H:M:S');
-  var date = formatted + ' -0700';
-  binderItem += ' Created="' + date + '"' + ' Modified="' + date + '">';
-  console.log(binderItem);
+  var dt = dateTime.create();//gets date
+  var formatted = dt.format('Y-m-d H:M:S');//formatting date
+  var date = formatted + ' -0700';//adds needed string to it
+  binderItem += ' Created="' + date + '"' + ' Modified="' + date + '">';//adds it to the binderItem
+  return binderItem;
 }
 
+function buildMetaData(row,rows){
+  var metaStr = '\n<MetaData>\n   <IncludeInCompile>Yes</IncludeInCompile>\n  <CustomMetaData>\n  <MetaDataItem> \n      <FieldID>id</FieldID>\n  <Value>' + row[2] + '</Value>\n   </MetaDataItem>';
+  for(i=9; i<row.length;i++){//going through metadata columns
+    if(row[i]){
+      metaStr += '\n  <MetaDataItem> \n      <FieldID>' + rows[0][i] +'</FieldID>\n      <Value>' + row[i] + '</Value>\n   </MetaDataItem>';
+    }
+  }
+  metaStr += '\n     </CustomMetaData>\n</MetaData>';
+  metaStr +=  '\n<TextSettings>\n<TextSelection>0,0</TextSelection>\n</TextSettings>';
+  return metaStr
+}
+
+function buildUnoKeywords(row,keywords){
+  var keyStr = '';
+  var classes = row[8];
+  classes = classes.split(' ');
+  if(classes[1]){
+    keyStr = '\n<Keywords>';
+    classes.forEach(function(element){
+      if(keywords[element]){
+        keyStr += '\n<KeywordID>' + keywords[element] + '</KeywordID>';
+      }
+    });
+  keyStr += '\n</Keywords>';
+  }
+
+  return keyStr
+}
+
+
+function buildClose(row,rows,index){
+  var closeStr = '';
+  var difference = 0;
+
+  if(rows[index + 1]){
+    difference = row[5]-rows[index + 1][5];
+
+  }else{
+    difference = row[5];
+  }
+
+  if(difference >-1){
+    closeStr += '\n</BinderItem>';
+  }
+
+  for (i=0; i<difference; i++){
+    closeStr += '    \n</Children>\n</BinderItem>';
+  }
+  return closeStr
+}
 
 
 
