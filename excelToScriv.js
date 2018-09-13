@@ -22,8 +22,7 @@ ncp('./template.scriv', scriv, function (err) { //copies the template scriv file
 
 function main(){
   var excel = xlsx.parse(f); // parses the excel file
-  var text = fs.readFileSync('./template.scriv/template.scrivx').toString('utf-8'); //reads the template.scrivx file and puts it in text
-  fs.unlinkSync(scriv + '/template.scrivx');//deletes the template.scrivx file from the destination
+  var text = fs.readFileSync('./template.xml').toString('utf-8'); //reads the template.scrivx file and puts it in text
   var keywords = getKeywords(excel);
   text = text.replace('<Keywords></Keywords>', buildKeywords(excel,keywords));
   buildMap(excel,keywords);

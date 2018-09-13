@@ -250,8 +250,8 @@ function propagate(result){
         parent = parentUno;
       }
     });
-    if(!uno.unofrom && uno.unoto && parent.unofrom){//if classes of the uno includes "link" and unofrom is empty, the uno inherits unofrom from its parent
-      result[1][index].unofrom = parent.unofrom;
+    if(!uno.unofrom && uno.unoto){//if classes of the uno includes "link" and unofrom is empty, the uno inherits unofrom from its parent
+      result[1][index].unofrom = parent.id;
     }
     inheritable.forEach(function(meta){ //if there is one of the inheritables that doesn't have value in the uno, but has the value in the parent, the uno inherits the value from the parent
       if(parent && parent[meta] && uno[meta] === undefined){
