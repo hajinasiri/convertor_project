@@ -24,12 +24,10 @@ function main(){
   var excel = xlsx.parse(f); // parses the excel file
   var text = fs.readFileSync('./template.xml').toString('utf-8'); //reads the template.scrivx file and puts it in text
   var keywords = getKeywords(excel);
-  text = text.replace('<Keywords></Keywords>', buildKeywords(excel,keywords));
-  buildMap(excel,keywords);
-  text = text.replace('<CustomMetaDataSettings></CustomMetaDataSettings>' , buildCustomMetaDataSettings(excel)); //builds CustomMetaDataSettings part and puts it in the text
   text = text.replace('<Map></Map>', buildMap(excel,keywords))
-  text = text.replace('&','&amp;')
-  writeFile(scrivx, text);
+  text = text.replace('<Keywords></Keywords>', buildKeywords(excel,keywords));
+  text = text.replace('<CustomMetaDataSettings></CustomMetaDataSettings>' , buildCustomMetaDataSettings(excel)); //builds CustomMetaDataSettings part and puts it in the text
+  text = text.replace('&','&amp;');
 }
 
 function writeFile(path,text){//This function writes the text to the path of the file
