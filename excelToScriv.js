@@ -4,7 +4,8 @@ var fs = require('fs');
 var ncp = require('ncp').ncp; //Module to copy folders
 var dateTime = require('node-datetime');//Module for getting dateTime
 
-var f = "/Users/shahab/lighthouse/scriv/excelToScriv/render0.3.xlsx";
+// var f = "/Users/shahab/lighthouse/scriv/render3/GenderFinance4.9test.xlsx";
+var f = process.argv[2];//reads the file address from user input in terminal
 
 const scriv = f.substr(0,f.indexOf('xlsx')) + 'scriv'; //builds the destination path for scriv file
 const fileName = scriv.substr(scriv.lastIndexOf('/'), scriv.length) + 'x';
@@ -92,7 +93,6 @@ function buildMap(excel,keywords){
     }
 
   })
-  writeFile('test.scrivx',mapStr);
   return mapStr
 }
 
