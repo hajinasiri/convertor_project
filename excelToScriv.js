@@ -15,7 +15,8 @@ ncp('./template.scriv', scriv, function (err) { //copies the template scriv file
   if (err) {
     return console.error(err);
   }else{
-    main();
+    var text = main();
+    writeFile(scrivx,text);
   }
   console.log('done!');
 });
@@ -28,6 +29,7 @@ function main(){
   text = text.replace('<Keywords></Keywords>', buildKeywords(excel,keywords));
   text = text.replace('<CustomMetaDataSettings></CustomMetaDataSettings>' , buildCustomMetaDataSettings(excel)); //builds CustomMetaDataSettings part and puts it in the text
   text = text.replace('&','&amp;');
+  return text
 }
 
 function writeFile(path,text){//This function writes the text to the path of the file
@@ -55,7 +57,7 @@ function getKeywords (excel){ //makes an object of all the classes and returns t
   var classes;
   var rows = excel[0].data;//This lines puts all the rows in "rows" variable
   rows.forEach(function(row,index){//goes through each row
-    if(index){//skips the row 0 which is the row that contains column titles
+    if(row[8] && index ){//skips the row 0 which is the row that contains column titles
       classes = row[8];
       classes = classes.split(' ');
       classes.forEach(function(element){
@@ -139,9 +141,10 @@ function buildMetaData(row,rows){
 
 function buildUnoKeywords(row,keywords){
   var keyStr = '';
-  var classes = row[8];
-  classes = classes.split(' ');
-  if(classes[1]){
+
+  if(row[8]){
+    var classes = row[8];
+    classes = classes.split(' ');
     keyStr = '\n<Keywords>';
     classes.forEach(function(element){
       if(keywords[element]){

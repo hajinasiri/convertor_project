@@ -254,7 +254,7 @@ function propagate(result){
       result[1][index].unofrom = parent.id;
     }
     inheritable.forEach(function(meta){ //if there is one of the inheritables that doesn't have value in the uno, but has the value in the parent, the uno inherits the value from the parent
-      if(parent && parent[meta] && uno[meta] === undefined){
+      if(parent && parent[meta] && (uno[meta] === undefined || uno[meta] == "")){
         result[1][index][meta] = parent[meta];
       }
     });

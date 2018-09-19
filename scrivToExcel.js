@@ -3,7 +3,7 @@ var fs = require("fs");
 var modules = require('./scrivModules');
 
 require('log-timestamp');
-// var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
+// var f = "/Users/shahab/lighthouse/scriv/render3/GenderFinance4.7test.scriv";
 
 var f = process.argv[2];//reads the file address from user input in terminal
 
@@ -41,6 +41,7 @@ function main(f) {
     var output = {};
     output.CustomMetaDataSettings = settings;//output is the variable holding the desirable XML format. This line adds the settings to it
 
+
     var Keywords = result.ScrivenerProject.Keywords[0].Keyword;//reads the Kewords from text
     Keywords = Keywords.map(a => {//makes the format desirable
       return {ID:a.$.ID,Title:a.Title[0],Color:a.Color[0]}
@@ -68,9 +69,8 @@ function main(f) {
         storyUUID = element.$.UUID
       }
     });
-    if(config){
+
     var configObject = modules.createConfig(f,config);//creates the confing.json file
-    }
     var XML = {}
     XML = addToXML(MapArray,[],XML);//adds map object to the final xml
     buildXML(MapArray,XML);//builds the desirable xml format from MapArray
