@@ -27,7 +27,6 @@ function main(f) {
   var n = f.lastIndexOf('/');
   var res = f.substr(n, f.length);
   f = f + res+'x';
-  console.log('****************',f);
 
   var text = fs.readFileSync(f).toString('utf-8');
 
@@ -186,8 +185,7 @@ function createStory(finalResult,f,UUID){
           }
           storyData += "&unoInfo=" + element.id;
         }
-        console.log('element classes are:',element.classes);
-        storyData += "' id='storyLink" + element.id + "'   class='slide storyItem"+
+        storyData += "' id='storyLink" + element.id + "'   class='slide " + element.classes + "  storyItem"+
         (hasChildren? finalResult[index + 1].outlinelevel : element.outlinelevel).toString().padStart(2, '0') +
         "' >" + element.label + "</a><br>";
       }
