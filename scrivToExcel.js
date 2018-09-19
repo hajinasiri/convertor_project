@@ -26,7 +26,9 @@ fs.watchFile(f, (curr, prev) => {
 function main(f) {
   var n = f.lastIndexOf('/');
   var res = f.substr(n, f.length);
-  f = f + '/' +res+'x';
+  f = f + res+'x';
+  console.log('****************',f);
+
   var text = fs.readFileSync(f).toString('utf-8');
 
 
@@ -78,7 +80,7 @@ function main(f) {
     var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
     modules.findDuplicates(finalResult);//checks if there are duplicate ids and prints out a warning if there are any
     createStory(finalResult[1],f,storyUUID);
-    createHtml(mapHtmlUUID,'map.html',f);
+    createHtml(mapHtmlUUID,'index.html',f);
     createHtml(mapCssUUID,'map.css',f);
   });
 }
@@ -128,9 +130,8 @@ function createStory(finalResult,f,UUID){
   var storyLink = "";
   var hasChildren;
   var div;
-  // Find the story and/or voa links: go through all the UNO's checking for a classes of 'story' or 'voa'
 
-  // Note that voa elements may also have a story link
+  // voa elements may also have a story link
   finalResult.forEach(function(element,index){
     // console.log(element.shortdescription);
     // Find any voa's
@@ -185,6 +186,7 @@ function createStory(finalResult,f,UUID){
           }
           storyData += "&unoInfo=" + element.id;
         }
+        console.log('element classes are:',element.classes);
         storyData += "' id='storyLink" + element.id + "'   class='slide storyItem"+
         (hasChildren? finalResult[index + 1].outlinelevel : element.outlinelevel).toString().padStart(2, '0') +
         "' >" + element.label + "</a><br>";
