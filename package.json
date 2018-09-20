@@ -23,6 +23,7 @@
     "node-datetime": "^2.1.0",
     "node-xlsx": "^0.12.1",
     "read-excel-file": "^2.0.2",
+    "readline-sync": "^1.4.9",
     "textract": "^2.4.0",
     "xml2js": "^0.4.19"
   }
