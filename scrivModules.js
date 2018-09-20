@@ -441,6 +441,154 @@ function fixupCustomFunctions(result,uno) {
       })
     });
   });
+}
+
+function readText(UUID,f) { //gets the UUID of an uno, and the scriv file address and reads the content.rtf and extracts the text and returns it
+  var path = f.substr(0,f.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
+  if (fs.existsSync(path)) {//if the content.rtf exests
+    var text = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
+    const begin = text.indexOf('fs20') + 'fs20'.length;
+    const end = text.indexOf('fs24 <');
+    text = text.slice(begin, end);
+    text = text.replace('cf0', '');
+    text = text.replace(/'91/g, "'");
+    text = text.replace(/'92/g, "'");
+    text = text.replace(/a0/g, ' ');
+    text = text.replace(/\\/g, '');
+    return text;
+  }
+}
+
+
+
+
+function createHtml(UUID,fileTitle,f){//gets the title of the file that needs to be created, UUID of the corresponding content.rtf file,
+  //and the scriv file address and creates the file in the same folder
+var text = readText(UUID,f)
+var Path = f.substr(0,f.lastIndexOf('/') - 1);
+Path = Path.substr(0,Path.lastIndexOf('/') + 1) + fileTitle;
+
+fs.writeFile(Path, text, function(err) {//writes the animate.json file
+  if(err) {
+    return console.log(err);
+  }
+  console.log(fileTitle,"file was saved!");
+});
 
 }
-module.exports =  {createExcel,createConfig,findDuplicates,stripID}
+
+function createStory(finalResult,f,UUID){
+  // story,html code and animation
+
+  var storyData = "";
+  var voaData = "{\r\r";
+  var voaIndex = 0;
+  var indexString;
+  var storyLink = "";
+  var hasChildren;
+  var div;
+
+  // voa elements may also have a story link
+  finalResult.forEach(function(element,index){
+    // console.log(element.shortdescription);
+    // Find any voa's
+    if(element.classes.includes("voa") ){
+      if(voaIndex == 0){ // add the starting element
+        if( voaData.charAt(voaData.length - 1) == "}"){ // add the closing comma to the previous voa
+            voaData += ",\r\r";
+        }
+        voaData += "\"" + element.id + "\": {  \"elements\":  [\r";
+        voaIndex ++;
+      }
+      else {  // add a regular animation element
+        voaData += "{ \"type\": \"synchronous\", \"elements\": [ { \"type\":\"url\", \"content\":\"";
+        if(element.slideurl){//Checks if the element has slideurl, then adds it to voaData
+          voaData += element.slideurl;
+        }
+        indexString = voaIndex;
+        if(indexString.toString().length === 1){ //checks if the indexString is just one digit
+          indexString = voaIndex.toString().padStart(2, '0');  // the MP3 file's index number must have 2 digits
+        }
+
+        voaData += "\" } , { \"type\":\"audio\", \"content\":\"audio/" + element.id + " " + indexString + ".mp3\" } ] }";
+
+        if(element.outlinelevel > finalResult[index + 1].outlinelevel){  // we've hit the last item of this animation
+          voaData += "\r] }";
+          voaIndex = 0;
+        }
+        else {  // more elements yet to add
+          voaData += ",\r";
+          voaIndex ++;
+        }
+      }
+    }
+    // Finds any story links
+    if(element.classes.includes("story") ){
+
+      hasChildren = false;
+      finalResult.forEach(function(children){//checks if any of the unos are children of the current element, then sets hasChildren as true
+        if(children.parent === element.id){
+          hasChildren = true;
+        }
+      });
+      if(hasChildren){
+        storyData += "<h"+element.outlinelevel+" class='storyHead storyHead"+element.outlinelevel.toString().padStart(2, '0')+
+        "'> <button aria-expanded='false'><i class='icon-right-dir'></i><i class='icon-down-dir'></i>"+element.title+"</row></button></h"+
+        element.outlinelevel+"><div hidden>"
+      }else{
+        storyData += '<a href='+"'"+"#/?"+(element.slideurl? element.slideurl:"");
+        if(element.longdescription){
+          if (!(element.slideurl)){
+            storyData += "+++";
+          }
+          storyData += "&unoInfo=" + element.id;
+        }
+        storyData += "' id='storyLink" + element.id + "'   class='slide " + element.classes + "  storyItem"+
+        (hasChildren? finalResult[index + 1].outlinelevel : element.outlinelevel).toString().padStart(2, '0') +
+        "' >" + element.label + "</a><br>";
+      }
+      //Below creates an string of divs that are needed after each uno's html
+
+      if(finalResult[index+1]){
+        div = '';
+        for(i=0; i < element.outlinelevel - finalResult[index+1].outlinelevel; i++){
+          div = div + '</div>'
+        }
+      }else{
+        for(i=1; i < element.outlinelevel; i++){
+          div = div + '</div>'
+        }
+      }
+      storyData += div;
+      // adding the CR between links
+      storyLink += "\r";
+      storyData += storyLink;
+      storyLink = "";
+    }
+  });
+  var text = readText(UUID,f);//reads the story.html from scrivner and puts the content in text
+  if(text){
+    storyData = text.replace('storyLinksGoHere',storyData); //puts the created storyData inside story.html where "storyLinksGoHere is"
+  }
+
+  var storyPath = f.substr(0,f.lastIndexOf('/') - 1);
+  storyPath = storyPath.substr(0,storyPath.lastIndexOf('/')) + '/story.html';//Builds the path that animate.json will get written to
+  fs.writeFile(storyPath, storyData, function(err) {//writes the animate.json file
+    if(err) {
+      return console.log(err);
+    }
+    console.log("story.html file was saved!");
+  });
+  voaData += "\r\r}";
+  // Save the voaData to the animate.json file
+  var animatePath = f.substr(0,f.lastIndexOf('/') - 1);
+      animatePath = animatePath.substr(0,animatePath.lastIndexOf('/')) + '/animate.json';//Builds the path that animate.json will get written to
+  fs.writeFile(animatePath, voaData, function(err) {//writes the animate.json file
+    if(err) {
+      return console.log(err);
+    }
+    console.log("animate.json file was saved!");
+  });
+
+}
+module.exports =  {createExcel,createConfig,findDuplicates,stripID,readText,createHtml,createStory}

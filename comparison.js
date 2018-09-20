@@ -1,5 +1,9 @@
 var readline = require('readline-sync');
 
-var name = readline.question("What is your name?");
+var scrivModule = require('./mainModules.js')
 
-console.log("Hi " + name + ", nice to meet you.");
+var scrivPath = readline.question("Enter the scriv file address:");
+var excelPath = readline.question("Enter the excel file address:");
+// console.log(scrivPath);
+// var result = scrivModule.main(scrivPath);
+// console.log(result);
