@@ -11,9 +11,9 @@ function main(f,checker) {
   f = f + res+'x';
 
   var text = fs.readFileSync(f).toString('utf-8');
+  var finalResult;
 
-
-  var finalResult = parseString(text, function (err, result) {//this line parses the text. the output is text. Then the desirable XML format will be built from this output
+  parseString(text, function (err, result) {//this line parses the text. the output is text. Then the desirable XML format will be built from this output
     var settings = result.ScrivenerProject.CustomMetaDataSettings[0].MetaDataField;//getting the metaDataSettings from the parsed text
 
     settings = settings.map(a => {//This creates a desirable format of settings and puts it inside the settings
@@ -58,14 +58,14 @@ function main(f,checker) {
     XML = addToXML(MapArray,[],XML);//adds map object to the final xml
     buildXML(MapArray,XML);//builds the desirable xml format from MapArray
     output.Binder = [XML];//sets the output.Binder to an array with XML inside
-    var finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
+    finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
+
     modules.findDuplicates(finalResult);//checks if there are duplicate ids and prints out a warning if there are any
     if(checker === 'yes'){//This checker is added to make it possible to use main function as a module in comparison file
       modules.createStory(finalResult[1],f,storyUUID);
       modules.createHtml(mapHtmlUUID,'index.html',f);
       modules.createHtml(mapCssUUID,'map.css',f);
     }
-    return finalResult
   });
 return finalResult
 }

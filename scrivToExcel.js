@@ -5,7 +5,7 @@ require('log-timestamp');
 var modules = require('./scrivModules');
 var mainModules = require('./mainModules.js');
 
-// var f = "/Users/shahab/lighthouse/scriv/render3/GenderFinance4.7test.scriv";
+// var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
 
 var f = process.argv[2];//reads the file address from user input in terminal
 
