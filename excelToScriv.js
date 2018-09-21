@@ -3,9 +3,21 @@ var xlsx = require('node-xlsx');
 var fs = require('fs');
 var ncp = require('ncp').ncp; //Module to copy folders
 var dateTime = require('node-datetime');//Module for getting dateTime
+var readline = require('readline-sync');//To read input lines from terminal
+
+var scrivModule = require('./mainModules.js')
+
 
 // var f = "/Users/shahab/lighthouse/scriv/render3/GenderFinance4.9test.xlsx";
 var f = process.argv[2];//reads the file address from user input in terminal
+
+if(f === "u"){
+    // var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
+  var scrivPath = readline.question("Enter the scriv file address:");
+  var excelPath = readline.question("Enter the excel file address:");
+  var result = scrivModule.main(scrivPath,'No');
+  f = excelPath;
+}
 
 const scriv = f.substr(0,f.indexOf('xlsx')) + 'scriv'; //builds the destination path for scriv file
 const fileName = scriv.substr(scriv.lastIndexOf('/'), scriv.length) + 'x';
@@ -83,6 +95,7 @@ function buildMap(excel,keywords){
   var mapStr = '';
   var rows = excel[0].data;
   rows.forEach(function(row,index){
+    console.log(row);
     if(index > 0){
       mapStr += '\n' +buildBinderItem(row,rows,index);//adding the binderItem string to it
       mapStr += '\n  <Title>' + row[1]+ '</Title>';
