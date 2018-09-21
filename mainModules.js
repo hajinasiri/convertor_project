@@ -53,18 +53,19 @@ function main(f,checker) {
       }
     });
 
-    var configObject = modules.createConfig(f,config);//creates the confing.json file
+
     var XML = {}
     XML = addToXML(MapArray,[],XML);//adds map object to the final xml
     buildXML(MapArray,XML);//builds the desirable xml format from MapArray
     output.Binder = [XML];//sets the output.Binder to an array with XML inside
-    finalResult = modules.createExcel(f,output,'name');//creates the excel file from the final desirable xml format that is stored in output
-
+    finalResult = modules.createExcel(f,output,checker);//creates the excel file from the final desirable xml format that is stored in output
+    //the 'yes' determins that the function will create the excel file, otherwise it will just return finalResult
     modules.findDuplicates(finalResult);//checks if there are duplicate ids and prints out a warning if there are any
     if(checker === 'yes'){//This checker is added to make it possible to use main function as a module in comparison file
       modules.createStory(finalResult[1],f,storyUUID);
       modules.createHtml(mapHtmlUUID,'index.html',f);
       modules.createHtml(mapCssUUID,'map.css',f);
+      var configObject = modules.createConfig(f,config);//creates the confing.json file
     }
   });
 return finalResult

@@ -1,7 +1,7 @@
 var excel4node = require('excel4node'); //initiates excel file
 var fs = require("fs");
 
-function createExcel(files,XML,name){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
+function createExcel(files,XML,checker){//fetches data from XML, Uses addElement function to add the data to excel file. addElement function itself
   //uses propagate function to make child inherit MetaData from their parent
   var result =[[],[]];
 
@@ -27,9 +27,8 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
   propagate(result);
   fixupCustomFunctions(result,excel,uno);//Fixing the customfunctions to include uno.id
   fixShort(result,uno);
-  // fixUnofrom(result);
 
-//this part creates the excel part from second element of result array which is after inheritance
+  //this part creates the excel part from second element of result array which is after inheritance
   result[1].forEach(function(resultElement,resultIndex){
     excel.cell(resultIndex + 2,1).number(resultIndex + 2);//puts the numbers in "Number" column in the excel file
     uno.forEach(function(unoElement,unoIndex){
@@ -43,7 +42,9 @@ function createExcel(files,XML,name){//fetches data from XML, Uses addElement fu
 
   var path = files.substr(0,files.lastIndexOf('.scriv'))//Getting rid of the scrivx file in the path
   path = path.substr(0,path.lastIndexOf('.scriv'))+ '.xlsx';//building address for excel file
-  workbook.write(path);; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
+  if(checker === 'yes'){//if the checker is 'yes', then the function creates the excel file, otherwise it will just returns finalResult
+    workbook.write(path);; //generates the excel file. Uses setTime to let async readSingleFile function inside getText function read the rtf files and add them to the excel.
+  }
   return result
 }
 
@@ -271,7 +272,7 @@ function propagate(result){
 function getShort(files,target,row,column,result){
   if(target.UUID){//if the target has UUID this part will play
     const UUID = target.UUID;
-    var path = files.substr(0,files.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/synopsis.txt';//building address of the synopsis.txt
+    var path = files.substr(0,files.lastIndexOf('/'))+ '/Files/Data/' + UUID +'/synopsis.txt';//building address of the synopsis.txt
     if (fs.existsSync(path)) {//if the synopsis.txt exests
       var text = fs.readFileSync(path).toString('utf-8');//This line reads the synopsis.txt
       result[0][row - 2].shortdescription = text;//This puts text inside result element 0 as shortdescription
@@ -283,7 +284,7 @@ function getShort(files,target,row,column,result){
 function getText(files,target,row,column,result){
   if(target.UUID){
     const UUID = target.UUID;
-    var path = files.substr(0,files.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
+    var path = files.substr(0,files.lastIndexOf('/'))+ '/Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
 
     if (fs.existsSync(path)) {//if the content.rtf exests
       var text = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
@@ -365,7 +366,8 @@ function stripRtf(str){//strips rtf added characters
 function createConfig(f,config){
   if(config.$.UUID){
     const UUID = config.$.UUID;
-    var path = f.substr(0,f.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';
+    // console.log(UUID);
+    var path = f.substr(0,f.lastIndexOf('/'))+ '/Files/Data/' + UUID +'/content.rtf';
     if (fs.existsSync(path)) {//if the content.rtf exests
       var content = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
       content = content.replace(/\\/g, '');
@@ -380,6 +382,8 @@ function createConfig(f,config){
       content = content.substr(0,content.indexOf('}')+ 1) //getting rid of anything after the first '}'. the first occurance of '}' would be the end of object
       var configPath = f.substr(0,f.lastIndexOf('/') - 1);
       configPath = configPath.substr(0,configPath.lastIndexOf('/')) + '/config.json';
+      // console.log('configPath', configPath);
+      // console.log('content', content)
       fs.writeFile(configPath, content, function(err) {
         if(err) {
           return console.log(err);
@@ -444,7 +448,8 @@ function fixupCustomFunctions(result,uno) {
 }
 
 function readText(UUID,f) { //gets the UUID of an uno, and the scriv file address and reads the content.rtf and extracts the text and returns it
-  var path = f.substr(0,f.lastIndexOf('/'))+ 'Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
+  var path = f.substr(0,f.lastIndexOf('/'))+ '/Files/Data/' + UUID +'/content.rtf';//building address of the content.rtf
+  console.log(path)
   if (fs.existsSync(path)) {//if the content.rtf exests
     var text = fs.readFileSync(path).toString('utf-8');//This line reads the content.rtf
     const begin = text.indexOf('fs20') + 'fs20'.length;
@@ -464,17 +469,18 @@ function readText(UUID,f) { //gets the UUID of an uno, and the scriv file addres
 
 function createHtml(UUID,fileTitle,f){//gets the title of the file that needs to be created, UUID of the corresponding content.rtf file,
   //and the scriv file address and creates the file in the same folder
-var text = readText(UUID,f)
-var Path = f.substr(0,f.lastIndexOf('/') - 1);
-Path = Path.substr(0,Path.lastIndexOf('/') + 1) + fileTitle;
+  if(UUID){
+    var text = readText(UUID,f)
+    var Path = f.substr(0,f.lastIndexOf('/') - 1);
+    Path = Path.substr(0,Path.lastIndexOf('/') + 1) + fileTitle;
 
-fs.writeFile(Path, text, function(err) {//writes the animate.json file
-  if(err) {
-    return console.log(err);
+    fs.writeFile(Path, text, function(err) {//writes the animate.json file
+      if(err) {
+        return console.log(err);
+      }
+      console.log(fileTitle,"file was saved!");
+    });
   }
-  console.log(fileTitle,"file was saved!");
-});
-
 }
 
 function createStory(finalResult,f,UUID){
@@ -567,6 +573,7 @@ function createStory(finalResult,f,UUID){
     }
   });
   var text = readText(UUID,f);//reads the story.html from scrivner and puts the content in text
+
   if(text){
     storyData = text.replace('storyLinksGoHere',storyData); //puts the created storyData inside story.html where "storyLinksGoHere is"
   }
