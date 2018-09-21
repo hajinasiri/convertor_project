@@ -15,7 +15,7 @@ if(f === "u"){
     // var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
   var scrivPath = readline.question("Enter the scriv file address:");
   var excelPath = readline.question("Enter the excel file address:");
-  var result = scrivModule.main(scrivPath,'No');
+  var result = scrivModule.main(scrivPath,'No')[1];//puts the scriv file in an array and puts it in 'result' variable
   f = excelPath;
 }
 
@@ -93,10 +93,19 @@ function buildKeywords(excel,keywords){
 
 function buildMap(excel,keywords){
   var mapStr = '';
+  var match = '';
   var rows = excel[0].data;
   rows.forEach(function(row,index){
-    console.log(row);
-    if(index > 0){
+    result.forEach(function(element){//finds the matching row in the array built from scriv file and puts it in variable 'match'
+      if(row[2] === element.id){
+        match = element;
+      }
+    })
+    checkMatch(row,6,match,'shortdescription');
+    // if(index === 1){
+    //   console.log(row[6],match.shortdescription);
+    // }
+    if(index > 0){//index 0 is the first row in excel that contains column titles
       mapStr += '\n' +buildBinderItem(row,rows,index);//adding the binderItem string to it
       mapStr += '\n  <Title>' + row[1]+ '</Title>';
       mapStr += buildMetaData(row,rows);
@@ -106,6 +115,15 @@ function buildMap(excel,keywords){
 
   })
   return mapStr
+}
+
+function checkMatch(row,columnNumber,match,columnDescription ){
+  var excelUno = row[columnNumber];
+  var scrivUno = match[columnDescription];
+  if(excelUno === scrivUno || (!excelUno && !scrivUno)){//if the short description
+    console.log(match.id);
+
+  }
 }
 
 function buildBinderItem(row,rows,index){
