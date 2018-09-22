@@ -11,11 +11,12 @@ var scrivModule = require('./mainModules.js')
 // var f = "/Users/shahab/lighthouse/scriv/render3/GenderFinance4.9test.xlsx";
 var f = process.argv[2];//reads the file address from user input in terminal
 
+var result =[];
 if(f === "u"){
     // var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
   var scrivPath = readline.question("Enter the scriv file address:");
   var excelPath = readline.question("Enter the excel file address:");
-  var result = scrivModule.main(scrivPath,'No')[1];//puts the scriv file in an array and puts it in 'result' variable
+  result = scrivModule.main(scrivPath,'No')[1];//puts the scriv file in an array and puts it in 'result' variable
   f = excelPath;
 }
 
@@ -95,16 +96,18 @@ function buildMap(excel,keywords){
   var mapStr = '';
   var match = '';
   var rows = excel[0].data;
+  var l = rows[0].length; //this stores the length of the rows, so later l can be used to add labelID to the row if needed
+
   rows.forEach(function(row,index){
     result.forEach(function(element){//finds the matching row in the array built from scriv file and puts it in variable 'match'
       if(row[2] === element.id){
         match = element;
       }
     })
-    checkMatch(row,6,match,'shortdescription');
-    // if(index === 1){
-    //   console.log(row[6],match.shortdescription);
-    // }
+    if(match){//if there is a match then check if anything has changed
+      rows = checkMatch(index,6,match,'shortdescription',l,rows);//checks if shortDescription has changed and updates it;
+      rows = checkMatch(index,7,match,'longdescription',l,rows);//checks if longDescription has changed and updates it;
+    }
     if(index > 0){//index 0 is the first row in excel that contains column titles
       mapStr += '\n' +buildBinderItem(row,rows,index);//adding the binderItem string to it
       mapStr += '\n  <Title>' + row[1]+ '</Title>';
@@ -117,13 +120,18 @@ function buildMap(excel,keywords){
   return mapStr
 }
 
-function checkMatch(row,columnNumber,match,columnDescription ){
+function checkMatch(index,columnNumber,match,columnDescription,l,rows){
+  var row = rows[index];
   var excelUno = row[columnNumber];
   var scrivUno = match[columnDescription];
-  if(excelUno === scrivUno || (!excelUno && !scrivUno)){//if the short description
-    console.log(match.id);
+  if(excelUno === scrivUno || (!excelUno && !scrivUno)){//if the old and new long/short-description are the same or both are empty
 
+  }else {//if they are different, then the new short/long-description gets copied in the row which will be used to create the scriv file
+    rows[index][columnNumber] = scrivUno;
+    rows[index][l] = 1;
+    rows[0][l] = 'LabelID';
   }
+  return rows
 }
 
 function buildBinderItem(row,rows,index){
@@ -159,10 +167,14 @@ function buildBinderItem(row,rows,index){
 }
 
 function buildMetaData(row,rows){
-  var metaStr = '\n<MetaData>\n   <IncludeInCompile>Yes</IncludeInCompile>\n  <CustomMetaData>\n  <MetaDataItem> \n      <FieldID>id</FieldID>\n  <Value>' + row[2] + '</Value>\n   </MetaDataItem>';
+  var metaStr = '\n<MetaData>\n';
+  if(rows[0][rows[0].length - 1] === 'LabelID' && row.length === rows[0].length){
+    metaStr += '<LabelID>1</LabelID>';
+  }
+  metaStr +='   <IncludeInCompile>Yes</IncludeInCompile>\n  <CustomMetaData>\n  <MetaDataItem> \n      <FieldID>id</FieldID>\n  <Value>' + row[2] + '</Value>\n   </MetaDataItem>';
   for(i=9; i<row.length;i++){//going through metadata columns
     if(row[i]){
-      metaStr += '\n  <MetaDataItem> \n      <FieldID>' + rows[0][i] +'</FieldID>\n      <Value>' + row[i] + '</Value>\n   </MetaDataItem>';
+      metaStr += '\n  <MetaDataItem> \n      <FieldID>' + rows[0][i] +'</FieldID>\n      <Value>' + row[i] + '</Value>\n</MetaDataItem>';
     }
   }
   metaStr += '\n     </CustomMetaData>\n</MetaData>';
