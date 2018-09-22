@@ -130,6 +130,7 @@ function checkMatch(index,columnNumber,match,columnDescription,l,rows){
     rows[index][columnNumber] = scrivUno;
     rows[index][l] = 1;
     rows[0][l] = 'LabelID';
+    console.log(columnDescription,'in', match.title,'was updated');
   }
   return rows
 }
