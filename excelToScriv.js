@@ -10,9 +10,10 @@ var scrivModule = require('./mainModules.js')
 
 // var f = "/Users/shahab/lighthouse/scriv/render3/GenderFinance4.9test.xlsx";
 var f = process.argv[2];//reads the file address from user input in terminal
-
+var update = false
 var result =[];
 if(f === "u"){
+  update = true;
     // var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
   var scrivPath = readline.question("Enter the scriv file address:");
   var excelPath = readline.question("Enter the excel file address:");
@@ -20,9 +21,22 @@ if(f === "u"){
   f = excelPath;
 }
 
-const scriv = f.substr(0,f.indexOf('xlsx')) + 'scriv'; //builds the destination path for scriv file
-const fileName = scriv.substr(scriv.lastIndexOf('/'), scriv.length) + 'x';
-const scrivx =scriv +fileName; //builds the destination path for scrivx file
+
+
+if(update){
+  var scriv = scrivPath.substr(0,scrivPath.lastIndexOf('scriv'))
+  scriv = scriv.substr(0,scriv.lastIndexOf('/')) + '/updated';
+  scriv += scrivPath.substr(scrivPath.lastIndexOf('/') + 1,scrivPath.indexOf('scriv'));
+  var fileName = scriv.substr(scriv.lastIndexOf('/'), scriv.length) + 'x';
+  var scrivx =scriv +fileName; //builds the destination path for scrivx file
+  console.log('scriv',scriv)
+  console.log('scrivx',scrivx)
+}else{
+  var scriv = f.substr(0,f.indexOf('xlsx')) + 'scriv'; //builds the destination path for scriv file
+  var fileName = scriv.substr(scriv.lastIndexOf('/'), scriv.length) + 'x';
+  var scrivx =scriv +fileName; //builds the destination path for scrivx file
+}
+
 ncp.limit = 16;//part of the module
 ncp('./template.scriv', scriv, function (err) { //copies the template scriv file to the destination of scriv with the final name
   if (err) {
@@ -169,7 +183,8 @@ function buildBinderItem(row,rows,index){
 
 function buildMetaData(row,rows){
   var metaStr = '\n<MetaData>\n';
-  if(rows[0][rows[0].length - 1] === 'LabelID' && row.length === rows[0].length){
+  if(rows[0][rows[0].length - 1] === 'LabelID' && row.length === rows[0].length){//if the uno has a labelId that is always 1, then the label
+    //gets added to the metadata
     metaStr += '<LabelID>1</LabelID>';
   }
   metaStr +='   <IncludeInCompile>Yes</IncludeInCompile>\n  <CustomMetaData>\n  <MetaDataItem> \n      <FieldID>id</FieldID>\n  <Value>' + row[2] + '</Value>\n   </MetaDataItem>';
