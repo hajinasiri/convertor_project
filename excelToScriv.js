@@ -17,7 +17,7 @@ if(f === "u"){
     // var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
   var scrivPath = readline.question("Enter the scriv file address:");
   var excelPath = readline.question("Enter the excel file address:");
-  result = scrivModule.main(scrivPath,'No')[1];//puts the scriv file in an array and puts it in 'result' variable
+  result = scrivModule.main(scrivPath,'No')[0];//puts the scriv file in an array and puts it in 'result' variable
   f = excelPath;
 }
 
