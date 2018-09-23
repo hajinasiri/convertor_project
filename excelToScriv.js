@@ -3,7 +3,7 @@ var xlsx = require('node-xlsx');
 var fs = require('fs');
 var ncp = require('ncp').ncp; //Module to copy folders
 var dateTime = require('node-datetime');//Module for getting dateTime
-var readline = require('readline-sync');//To read input lines from terminal
+
 
 var scrivModule = require('./mainModules.js')
 
@@ -15,9 +15,9 @@ var result =[];
 if(f === "u"){
   update = true;
     // var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
-  var scrivPath = readline.question("Enter the scriv file address:");
-  var excelPath = readline.question("Enter the excel file address:");
-  result = scrivModule.main(scrivPath,'No')[0];//puts the scriv file in an array and puts it in 'result' variable
+  var excelPath = process.argv[3];
+  var scrivPath = process.argv[4];
+  result = scrivModule.main(scrivPath,'No')[0];//puts the scriv file in an array and puts it in 'result' variable. "No" determins that no excel file needs to be created
   f = excelPath;
 }
 
