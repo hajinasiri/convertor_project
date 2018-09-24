@@ -29,8 +29,8 @@ if(update){
   scriv += scrivPath.substr(scrivPath.lastIndexOf('/') + 1,scrivPath.indexOf('scriv'));
   var fileName = scriv.substr(scriv.lastIndexOf('/'), scriv.length) + 'x';
   var scrivx =scriv +fileName; //builds the destination path for scrivx file
-  console.log('scriv',scriv)
-  console.log('scrivx',scrivx)
+  // console.log('scriv',scriv)
+  // console.log('scrivx',scrivx)
 }else{
   var scriv = f.substr(0,f.indexOf('xlsx')) + 'scriv'; //builds the destination path for scriv file
   var fileName = scriv.substr(scriv.lastIndexOf('/'), scriv.length) + 'x';
@@ -137,16 +137,40 @@ function buildMap(excel,keywords){
 function checkMatch(index,columnNumber,match,columnDescription,l,rows){
   var row = rows[index];
   var excelUno = row[columnNumber];
+  if(excelUno){excelUno = clean(excelUno)}
   var scrivUno = match[columnDescription];
-  if(excelUno === scrivUno || (!excelUno && !scrivUno)){//if the old and new long/short-description are the same or both are empty
+  scrivUno = match[columnDescription];
+  if(scrivUno){scrivUno = clean(scrivUno)};
+  if(excelUno == scrivUno || (!excelUno && !scrivUno)){//if the old and new long/short-description are the same or both are empty
 
   }else {//if they are different, then the new short/long-description gets copied in the row which will be used to create the scriv file
     rows[index][columnNumber] = scrivUno;
     rows[index][l] = 1;
     rows[0][l] = 'LabelID';
+
     console.log(columnDescription,'in', match.title,'was updated');
+    if(scrivUno && excelUno){
+
+     console.log('scriv:',"'",scrivUno.length+"'")
+         console.log('excelUno',"'",excelUno.length + "'");
+    //     console.log('********');
+      // excelSpil = excelUno.split('');
+      scrivSpil = scrivUno.split('');
+      console.log(scrivSpil)
+    }
   }
   return rows
+}
+
+function clean(text){//cleans the text from all the unwanted characters added by Excel or scrivener to make the texts comparable
+  while(text.indexOf("\r") > -1 || text.indexOf("\t") > - 1 || text.indexOf(" ") > - 1){
+
+    text = text.replace("\r",'');
+    text = text.replace(/\t/g,'');
+    text = text.replace(/\n/g,' ');
+    text = text.replace(/ /g,'');
+  }
+  return text
 }
 
 function buildBinderItem(row,rows,index){

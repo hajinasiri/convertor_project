@@ -17,3 +17,6 @@ fs.watchFile(f, (curr, prev) => {
   console.log(`${f} file Changed`);
   mainModules.main(f,'yes');
 });
+
+
+// /Users/shahab/lighthouse/scriv/test/test-1.scriv

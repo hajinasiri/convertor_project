@@ -269,12 +269,34 @@ function propagate(result){
   })
 }
 
+function cleanSpace(text){//This function removes the spaces at the end of the text
+  var check = true;
+  while(check){//removes all the spaces and "\n" at the end of the text
+    if(text.slice(-1) === " " || text.slice(-1) === '\n'){
+      text =text.slice(0, -1);
+    }else {
+      check = false;
+    }
+  }
+  check = true
+  while(check){//removes all the spaces and "\n" in the begining of the text
+    if(text.charAt(0) === " " || text.charAt(0) === '\n'){
+      text = text.substr(1,text.length - 1)
+    }else{
+      check = false;
+    }
+  }
+
+
+  return text
+}
 function getShort(files,target,row,column,result){
   if(target.UUID){//if the target has UUID this part will play
     const UUID = target.UUID;
     var path = files.substr(0,files.lastIndexOf('/'))+ '/Files/Data/' + UUID +'/synopsis.txt';//building address of the synopsis.txt
     if (fs.existsSync(path)) {//if the synopsis.txt exests
       var text = fs.readFileSync(path).toString('utf-8');//This line reads the synopsis.txt
+      // text = cleanSpace(text);
       result[0][row - 2].shortdescription = text;//This puts text inside result element 0 as shortdescription
       result[1][row - 2].shortdescription = text;//This puts text inside result element 1 as shortdescription
     }
@@ -324,14 +346,13 @@ function getText(files,target,row,column,result){
 
               .replace('\n*','')
               .replace('*\n','');
-
       result[0][row - 2].longdescription = text;
       result[1][row - 2].longdescription = text;
 
-          }
-        }
+    }
+  }
 
-      }
+}
 
 function remove(text,begin, end){//finds all portion of text that begins with 'begin' and ends with 'end' and replaces them with ''.
   var last;
