@@ -6,6 +6,7 @@ var modules = require('./scrivModules');
 var mainModules = require('./mainModules.js');
 
 // var f = "/Users/shahab/lighthouse/scriv/render3/render0.3.scriv";
+// /Users/shahab/lighthouse/scriv/test/test-1.scriv;
 
 var f = process.argv[2];//reads the file address from user input in terminal
 
@@ -19,4 +20,4 @@ fs.watchFile(f, (curr, prev) => {
 });
 
 
-// /Users/shahab/lighthouse/scriv/test/test-1.scriv
+

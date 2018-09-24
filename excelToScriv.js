@@ -149,15 +149,6 @@ function checkMatch(index,columnNumber,match,columnDescription,l,rows){
     rows[0][l] = 'LabelID';
 
     console.log(columnDescription,'in', match.title,'was updated');
-    if(scrivUno && excelUno){
-
-     console.log('scriv:',"'",scrivUno.length+"'")
-         console.log('excelUno',"'",excelUno.length + "'");
-    //     console.log('********');
-      // excelSpil = excelUno.split('');
-      scrivSpil = scrivUno.split('');
-      console.log(scrivSpil)
-    }
   }
   return rows
 }
