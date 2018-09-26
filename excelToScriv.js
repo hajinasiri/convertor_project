@@ -118,10 +118,8 @@ function buildMap(excel,keywords){
 
     result.forEach(function(element){//finds the matching row in the array built from scriv file and puts it in variable 'match'
 
-      if(row[3] === element.id){
-
+      if(row[2] === element.id){
         match = element;
-
       }
     })
     if(match){//if there is a match then check if anything has changed
@@ -141,21 +139,22 @@ function buildMap(excel,keywords){
 }
 
 function checkMatch(index,columnNumber,match,columnDescription,l,rows){//finds the matching uno in excel and scrivener and does updating
-  // console.log(match.title)
   var row = rows[index];
   var excelUno = row[columnNumber];
   if(excelUno){excelUno = clean(excelUno)}
   var scrivUno = match[columnDescription];
   scrivUno = match[columnDescription];
   if(scrivUno){scrivUno = clean(scrivUno)};
-  if(excelUno == scrivUno || (!excelUno && !scrivUno)){//if the old and new long/short-description are the same or both are empty
+
+
+  if((excelUno === scrivUno) || (!excelUno && !scrivUno)){//if the old and new long/short-description are the same or both are empty
 
   }else {//if they are different, then the new short/long-description gets copied in the row which will be used to create the scriv file
-    rows[index][columnNumber] = scrivUno;//This line does the updating
     rows[index][l] = 1; //adds the labelID "1" to the uno
     rows[0][l] = 'LabelID';//adds the labelID tag to the first row if doesn't exist already
 
-    // console.log(columnDescription,'in', match.title,'was updated');
+    console.log(columnDescription,'in', match.title,'was updated');
+
   }
   return rows
 }
