@@ -110,12 +110,18 @@ function buildMap(excel,keywords){
   var mapStr = '';
   var match = '';
   var rows = excel[0].data;
+
   var l = rows[0].length; //this stores the length of the rows, so later l can be used to add labelID to the row if needed
 
   rows.forEach(function(row,index){
+
+
     result.forEach(function(element){//finds the matching row in the array built from scriv file and puts it in variable 'match'
-      if(row[2] === element.id){
+
+      if(row[3] === element.id){
+
         match = element;
+
       }
     })
     if(match){//if there is a match then check if anything has changed
@@ -135,6 +141,7 @@ function buildMap(excel,keywords){
 }
 
 function checkMatch(index,columnNumber,match,columnDescription,l,rows){//finds the matching uno in excel and scrivener and does updating
+  // console.log(match.title)
   var row = rows[index];
   var excelUno = row[columnNumber];
   if(excelUno){excelUno = clean(excelUno)}
@@ -148,19 +155,23 @@ function checkMatch(index,columnNumber,match,columnDescription,l,rows){//finds t
     rows[index][l] = 1; //adds the labelID "1" to the uno
     rows[0][l] = 'LabelID';//adds the labelID tag to the first row if doesn't exist already
 
-    console.log(columnDescription,'in', match.title,'was updated');
+    // console.log(columnDescription,'in', match.title,'was updated');
   }
   return rows
 }
 
 function clean(text){//cleans the text from all the unwanted characters added by Excel or scrivener to make the texts comparable
-  while(text.indexOf("\r") > -1 || text.indexOf("\t") > - 1 || text.indexOf(" ") > - 1){
+  text = text.toString();
+  if(text ){
+    while(text.indexOf("\r") > -1 || text.indexOf("\t") > - 1 || text.indexOf(" ") > - 1){
 
-    text = text.replace("\r",'');
-    text = text.replace(/\t/g,'');
-    text = text.replace(/\n/g,' ');
-    text = text.replace(/ /g,'');
+      text = text.replace("\r",'');
+      text = text.replace(/\t/g,'');
+      text = text.replace(/\n/g,' ');
+      text = text.replace(/ /g,'');
+    }
   }
+
   return text
 }
 
