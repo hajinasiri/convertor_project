@@ -121,10 +121,11 @@ function buildMap(excel,keywords){
       if(row[2] === element.id){
         match = element;
       }
-    })
+    });
     if(match){//if there is a match then check if anything has changed
       rows = checkMatch(index,6,match,'shortdescription',l,rows);//checks if shortDescription has changed and updates it;
       rows = checkMatch(index,7,match,'longdescription',l,rows);//checks if longDescription has changed and updates it;
+      rows = getMeta(index,rows,match);
     }
     if(index > 0){//index 0 is the first row in excel that contains column titles
       mapStr += '\n' +buildBinderItem(row,rows,index);//adding the binderItem string to it
@@ -134,10 +135,26 @@ function buildMap(excel,keywords){
       mapStr += buildClose(row,rows,index);
     }
 
-  })
+  });
   return mapStr
 }
 
+function getMeta(index,rows,match){
+  if(index > 0){
+    var row = rows[index];
+    var columns = rows[0];
+    for(i=8; i<row.length; i++){
+      // if(match[columns[i].toLowerCase()] !== undefined){
+
+      // console.log(rows[index][i],match[columns[i].toLowerCase()]);
+
+      // }
+
+      rows[index][i] = match[columns[i].toLowerCase()];
+    }
+  }
+  return rows
+}
 function checkMatch(index,columnNumber,match,columnDescription,l,rows){//finds the matching uno in excel and scrivener and does updating
   var row = rows[index];
   var excelUno = row[columnNumber];
